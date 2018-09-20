@@ -4,3 +4,96 @@ option java_multiple_files = true;
 option java_package = "org.loopring.marketcap.proto";
 package org.loopring.marketcap.proto;
 
+import "google/protobuf/wrappers.proto";
+
+enum Intervals {
+    MINUTE_1 = 0;
+    MINUTE_3 = 1;
+    MINUTE_5 = 2;
+    MINUTE_15 = 3;
+    MINUTE_30 = 4;
+
+    HOUR_1 = 5;
+    HOUR_2 = 6;
+    HOUR_4 = 7;
+    HOUR_6 = 8;
+    HOUR_8 = 9;
+    HOUR_12 = 10;
+
+    DAY_1 = 11;
+    DAY_3 = 12;
+
+    WEEK_1 = 14;
+
+    MONTH_1 = 15;
+
+
+}
+
+
+message GetMarketCapReq {
+    string symbol = 1;
+    google.protobuf.Int32Value start_time = 2;
+    google.protobuf.Int32Value end_time = 3;
+    int32 limit = 4;
+    // oneof interval_val {
+    Intervals intervals = 5;
+    // }
+}
+
+// token market cap / for line chart
+//message TokenMarketCap {
+//    string token_address = 1;
+//    string cap_usd = 2;
+//    string cap_btc = 3;
+//    string cap_eth = 4;
+//    string price_usd = 5;
+//    string price_btc = 6;
+//    string price_eth = 7;
+//    string volume_usd = 8;
+//    string volume_btc = 9;
+//    string volume_eth = 10;
+//    int32 created_at = 11;
+//}
+
+// token base info
+//message TokenInfo {
+//    string token_address = 1;
+//    int32 ico_start_date = 2;
+//    int32 ico_end_date = 3;
+//    string ico_price_usd = 4;
+//    string ico_price_btc = 5;
+//    string ico_price_eth = 6;
+//    string total_supply = 7;
+//    string symbol_name = 8;
+//    string hard_cap = 9;
+//    string soft_cap = 10;
+//    int32 created_at = 11;
+//}
+
+// for kline
+//message TokenHistoryData {
+//    string token_address = 1;
+//    string open_usd = 2;
+//    string open_btc = 3;
+//    string open_eth = 4;
+//    string high_usd = 5;
+//    string high_btc = 6;
+//    string high_eth = 7;
+//    string low_usd = 8;
+//    string low_btc = 9;
+//    string low_eth = 10;
+//    string close_usd = 11;
+//    string close_btc = 12;
+//    string close_eth = 13;
+//    string volume_usd = 14;
+//    string volume_btc = 15;
+//    string volume_eth = 16;
+//    string cap_usd = 17;
+//    string cap_btc = 18;
+//    string cap_eth = 19;
+//    int32 created_at = 20;
+//}
+
+
+
