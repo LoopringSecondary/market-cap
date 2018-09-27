@@ -16,6 +16,17 @@ enum Intervals {
     ALL = 6;
 }
 
+// for token list
+message GetTokenListReq {}
+
+message GetTokenListRes {
+    int32 id = 1;
+    string name = 2;
+    string symbol = 3;
+    string website = 4;
+}
+
+
 // 折线图
 // for http request
 message GetTokenMarketCapReq {
@@ -63,12 +74,14 @@ message GetTokenIcoInfoReq {
 
 // response
 message GetTokenIcoInfoRes {
-    string ico_start_date = 1;
-    string ico_end_date = 2;
-    string hard_cap = 3;
-    string soft_cap = 4;
-    string raised = 5;
-    string ico_pricie = 6;
+    string name = 1;
+    string symbol = 2;
+    string ico_start_date = 3;
+    string ico_end_date = 4;
+    string hard_cap = 5;
+    string soft_cap = 6;
+    string raised = 7;
+    string ico_pricie = 8;
 }
 
 // for kline

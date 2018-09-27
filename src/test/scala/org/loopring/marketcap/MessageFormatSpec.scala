@@ -4,7 +4,7 @@ import org.json4s.JsonAST.{ JNothing, JNull }
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
 import org.json4s.{ CustomSerializer, NoTypeHints }
-import org.loopring.marketcap.proto.data.{ GetMarketCapReq, _ }
+import org.loopring.marketcap.proto.data._
 import org.scalatest.FlatSpec
 import scalapb.json4s.JsonFormat
 

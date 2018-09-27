@@ -1,52 +1,64 @@
 package org.loopring.marketcap
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.ws.{ BinaryMessage, Message, TextMessage, UpgradeToWebSocket }
-import akka.http.scaladsl.model.{ HttpMethods, HttpRequest, HttpResponse, Uri }
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{ Flow, Sink, Source }
-import com.google.protobuf.Any
+import slick.basic.DatabaseConfig
+import slick.jdbc.{ GetResult, JdbcProfile }
+import akka.stream.scaladsl._
+import akka.stream.alpakka.slick.scaladsl._
 import com.typesafe.config.ConfigFactory
-import org.loopring.marketcap.proto.data.{ GetTokenMarketCapRes, TokenVolume }
-import scalapb.json4s.JsonFormat
+import org.loopring.marketcap.proto.data.GetTokenListRes
+
+import scala.concurrent.Future
 
 object Main extends App {
 
-  //  val config = ConfigFactory.load()
+  implicit val system = ActorSystem("Test", ConfigFactory.load())
+  implicit val mat = ActorMaterializer()
+  implicit val ec = system.dispatcher
+
+  val databaseConfig = DatabaseConfig.forConfig[JdbcProfile]("slick-mysql", system.settings.config)
+
+  implicit val session = SlickSession.forConfig(databaseConfig)
+
+
+  implicit val getUserResult = GetResult(r => GetTokenListRes(id = r.nextInt(), name = r.nextString(), symbol = r.nextString(), website = r.nextString()))
+
+  import session.profile.api._
+
+  val done: Future[Seq[GetTokenListRes]] =
+    Slick
+      .source(sql"SELECT ID, NAME, symbol, website FROM t_token_list".as[GetTokenListRes])
+      .log("user")
+      .runWith(Sink.seq)
+
+  done.map {
+    _.map { x ⇒
+      println("x  ===>>>" + x.id + "#" + x.symbol)
+    }
+  }
+
+
+  system.registerOnTermination(() => session.close())
+  // redis
+  //  val nodePorts = Seq(7000, 7001, 7002)
   //
-  //  implicit val system = ActorSystem("market-cap", config)
-  //  implicit val materializer = ActorMaterializer()
-
-  val d = GetTokenMarketCapRes().withPriceUsd(Seq(TokenVolume.apply(111, "aa")))
-
-  // val d = GetTokenMarketCapRes().withPriceBtc(Seq(TokenVolume(Seq("aa", "bb"))))
-
-  println(JsonFormat.toJsonString(d))
-
-  //  val greeterWebSocketService =
-  //    Flow[Message]
-  //      .mapConcat {
-  //        case tm: TextMessage =>
-  //          TextMessage(Source.single("Hello ") ++ tm.textStream) :: Nil
-  //        case bm: BinaryMessage =>
-  //          bm.dataStream.runWith(Sink.ignore)
-  //          Nil
-  //      }
+  //  implicit val cluster: RedisCluster = RedisCluster(nodePorts.map(p => RedisServer("192.168.0.200", p)))
   //
-  //  val requestHandler: HttpRequest => HttpResponse = {
-  //    case req @ HttpRequest(HttpMethods.GET, Uri.Path("/greeter"), _, _, _) =>
-  //      req.header[UpgradeToWebSocket] match {
-  //        case Some(upgrade) => upgrade.handleMessages(greeterWebSocketService)
-  //        case None =>
-  //          HttpResponse(400, entity = "Not a valid websocket request!")
-  //      }
-  //    case r: HttpRequest =>
-  //      r.discardEntityBytes() // important to drain incoming HTTP Entity stream
-  //      HttpResponse(404, entity = "Unknown resource!")
+  //
+  //  val req = GetTokenListRes(id = 10, name = "Loopring", symbol = "LRC", website = "loopring")
+  //
+  //
+  //  val d = new ProtoBufMessageCacher[GetTokenListRes]()
+  //
+  //  d.put("haha", req).foreach(println)
+  //
+  //
+  //  d.get("haha").foreach {
+  //
+  //    case Some(x) ⇒ println("xxx =>>>>" + x.name + "#" + x.symbol)
+  //    case _ ⇒ println("nonononon")
+  //
   //  }
-  //
-  //  Http().bindAndHandleSync(requestHandler, interface = "localhost", port = 8080)
-  //
-  //  println("market-cap start")
+
 }

@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 class MarketBrokerProxy(implicit sys: ActorSystem, mat: ActorMaterializer)
   extends Actor
-  with LazyLogging {
+    with LazyLogging {
 
   val binance =
     sys.actorOf(

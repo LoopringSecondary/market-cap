@@ -15,9 +15,9 @@ libraryDependencies ++= {
   Seq(
     "org.slf4j" % "slf4j-api" % "1.7.25",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
-    "ch.qos.logback" % "logback-core" % logbackVersion % Compile,
-    "ch.qos.logback" % "logback-classic" % logbackVersion % Compile,
-    "ch.qos.logback" % "logback-access" % logbackVersion % Compile,
+    "ch.qos.logback" % "logback-core" % logbackVersion % Provided,
+    "ch.qos.logback" % "logback-classic" % logbackVersion % Provided,
+    "ch.qos.logback" % "logback-access" % logbackVersion % Provided,
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
     "com.typesafe.akka" %% "akka-remote" % akkaVersion,
@@ -26,6 +26,7 @@ libraryDependencies ++= {
     "org.json4s" %% "json4s-native" % "3.6.1",
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.0",
     "com.github.etaty" %% "rediscala" % "1.8.0",
+
     "com.lightbend.akka" %% "akka-stream-alpakka-slick" % "0.20",
     "mysql" % "mysql-connector-java" % "5.1.47",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
