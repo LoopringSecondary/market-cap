@@ -1,8 +1,13 @@
 package org.loopring.marketcap
 
+import akka.NotUsed
+import akka.stream.alpakka.slick.scaladsl.Slick
+import akka.stream.scaladsl.{ Flow, Source }
 import org.loopring.marketcap.proto.data._
-import slick.jdbc.PositionedResult
+import slick.jdbc.{ PositionedResult, SQLActionBuilder }
 import slick.sql.SqlStreamingAction
+
+import scala.concurrent.Future
 
 class SlickCrudSpec extends SlickSpec {
 
@@ -27,6 +32,11 @@ class SlickCrudSpec extends SlickSpec {
 
       def dd(s: String): DBIO[Seq[Int]] = sql"".as[Int]
 
+      val qq: SQLActionBuilder = sql"""SELECT ID, NAME, symbol, website FROM t_token_list"""
+
+
+      // val dd = qq andThen list[GetTokenListRes]
+
 
       val done = sql"""SELECT ID, NAME, symbol, website FROM t_token_list""".head[GetTokenListRes]
 
@@ -50,6 +60,17 @@ class SlickCrudSpec extends SlickSpec {
       implicit def insertUser(user: GetTokenListRes): slick.dbio.DBIO[Int] =
         sql"""INSERT INTO t_token_list(id, name, symbol, website)
         VALUES(${user.id}, ${user.name}, ${user.symbol}, ${user.website})""".asUpdate
+
+
+      val qq: GetTokenListRes ⇒ Int = (ew: GetTokenListRes) ⇒ {
+        ew.id
+      }
+
+
+      val d = (s: String) ⇒ s.length
+
+      val f: (String => Int) = s => s.length
+
 
 
       //      val d: slick.dbio.DBIO[Int] = (user: GetTokenListRes) ⇒ {

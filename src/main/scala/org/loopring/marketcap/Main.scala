@@ -3,15 +3,23 @@ package org.loopring.marketcap
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
+import akka.stream.alpakka.slick.scaladsl.SlickSession
 import com.typesafe.config.ConfigFactory
+import org.loopring.marketcap.endpoints.RootEndpoints
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.util.{ Failure, Success }
 
 object Main extends App {
 
   implicit val system = ActorSystem("Test", ConfigFactory.load())
   implicit val mat = ActorMaterializer()
-  implicit val ec = system.dispatcher
+
+  val databaseConfig = DatabaseConfig.forConfig[JdbcProfile]("slick-mysql", system.settings.config)
+  implicit val session = SlickSession.forConfig(databaseConfig)
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   val root = new RootEndpoints
 

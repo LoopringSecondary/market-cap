@@ -26,7 +26,7 @@ libraryDependencies ++= {
     "org.json4s" %% "json4s-native" % "3.6.1",
     "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.0",
     "com.github.etaty" %% "rediscala" % "1.8.0",
-
+    "org.jsoup" % "jsoup" % "1.11.3",
     "com.lightbend.akka" %% "akka-stream-alpakka-slick" % "0.20",
     "mysql" % "mysql-connector-java" % "5.1.47",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,

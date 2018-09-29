@@ -1,4 +1,4 @@
-package org.loopring.marketcap
+package org.loopring.marketcap.endpoints
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route

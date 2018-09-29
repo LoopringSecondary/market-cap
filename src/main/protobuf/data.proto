@@ -17,7 +17,8 @@ enum Intervals {
 }
 
 // for token list
-message GetTokenListReq {}
+message GetTokenListReq {
+}
 
 message GetTokenListRes {
     int32 id = 1;
@@ -25,7 +26,6 @@ message GetTokenListRes {
     string symbol = 3;
     string website = 4;
 }
-
 
 // 折线图
 // for http request
@@ -66,22 +66,24 @@ message GetTokenMarketVolumeRes {
 
 }
 
-// ico 信息
-// get token ico info request
 message GetTokenIcoInfoReq {
-    string symbol = 1;
+    google.protobuf.StringValue symbol = 1;
+    google.protobuf.StringValue address = 2;
 }
 
-// response
 message GetTokenIcoInfoRes {
-    string name = 1;
-    string symbol = 2;
-    string ico_start_date = 3;
-    string ico_end_date = 4;
-    string hard_cap = 5;
-    string soft_cap = 6;
-    string raised = 7;
-    string ico_pricie = 8;
+    repeated TokenIcoInfo list = 1;
+}
+
+message TokenIcoInfo {
+    string token_address = 1;
+    string ico_start_date = 2;
+    string ico_end_date = 3;
+    string hard_cap = 4;
+    string soft_cap = 5;
+    string raised = 6;
+    string ico_price = 7;
+    string country = 8;
 }
 
 // for kline
