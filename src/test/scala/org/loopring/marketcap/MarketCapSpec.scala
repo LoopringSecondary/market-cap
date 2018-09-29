@@ -19,6 +19,8 @@ abstract class MarketCapSpec
 
   implicit val mat = ActorMaterializer()
 
+  implicit val ec = system.dispatcher
+
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }

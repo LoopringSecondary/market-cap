@@ -15,9 +15,9 @@ libraryDependencies ++= {
   Seq(
     "org.slf4j" % "slf4j-api" % "1.7.25",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
-    "ch.qos.logback" % "logback-core" % logbackVersion % Provided,
-    "ch.qos.logback" % "logback-classic" % logbackVersion % Provided,
-    "ch.qos.logback" % "logback-access" % logbackVersion % Provided,
+    "ch.qos.logback" % "logback-core" % logbackVersion,
+    "ch.qos.logback" % "logback-classic" % logbackVersion,
+    "ch.qos.logback" % "logback-access" % logbackVersion,
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
     "com.typesafe.akka" %% "akka-remote" % akkaVersion,
@@ -31,6 +31,7 @@ libraryDependencies ++= {
     "mysql" % "mysql-connector-java" % "5.1.47",
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion,
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+    "com.typesafe.slick" %% "slick-testkit" % "3.2.3" % Test,
     "org.scalatest" %% "scalatest" % "3.0.5" % Test,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
   )

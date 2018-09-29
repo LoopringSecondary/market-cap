@@ -29,7 +29,14 @@ class ProtoBufMessageCacher[T <: ProtoBuf[T]](
 
   def put(k: String, v: T): Future[Boolean] = redis.set(k, v)
 
-  def put(k: String, v: T, ttl: Long): Future[Boolean] = redis.set(k, v, Some(ttl))
+  def put(k: String, v: T, ttl: Long): Future[Boolean] = redis.set(k, v, exSeconds = Some(ttl))
+
+  def push(k: String, vs: Seq[T]): Future[Long] =
+    redis.lpush(k, vs.map(serializer.serialize): _*)
+
+  def pull(k: String, start: Long = 0, stop: Long = -1): Future[Seq[T]] =
+    redis.lrange(k, start, stop)
+
 }
 
 final class ProtoBufByteStringDeserializer[T <: ProtoBuf[T]](
