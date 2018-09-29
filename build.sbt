@@ -7,7 +7,7 @@ scalaVersion := "2.12.6"
 PB.targets in Compile := Seq(scalapb.gen() -> (sourceManaged in Compile).value)
 
 libraryDependencies ++= {
-  val akkaVersion = "2.5.16"
+  val akkaVersion = "2.5.17"
   val akkaHttpVersion = "10.1.5"
 
   val logbackVersion = "1.2.3"
@@ -24,7 +24,8 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
     "org.json4s" %% "json4s-native" % "3.6.1",
-    "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.0",
+    "com.thesamet.scalapb" %% "scalapb-json4s" % "0.7.1",
+    "de.heikoseeberger" %% "akka-http-json4s" % "1.22.0",
     "com.github.etaty" %% "rediscala" % "1.8.0",
     "org.jsoup" % "jsoup" % "1.11.3",
     "com.lightbend.akka" %% "akka-stream-alpakka-slick" % "0.20",
