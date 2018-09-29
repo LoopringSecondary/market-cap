@@ -1,14 +1,15 @@
 package org.loopring.marketcap
 
+import akka.actor.ActorSystem
 import akka.util.ByteString
 import redis.{ ByteStringDeserializer, ByteStringSerializer, RedisCluster }
 
-import scala.concurrent.{ ExecutionContextExecutor, Future }
+import scala.concurrent.Future
 
 class ProtoBufMessageCacher[T <: ProtoBuf[T]](
   implicit
   redis: RedisCluster,
-  ec: ExecutionContextExecutor,
+  system: ActorSystem,
   c: scalapb.GeneratedMessageCompanion[T]) {
 
   private[this] implicit val deserializer = new ProtoBufByteStringDeserializer[T]
@@ -17,12 +18,12 @@ class ProtoBufMessageCacher[T <: ProtoBuf[T]](
 
   def get(k: String): Future[Option[T]] = redis.get(k)
 
-  def getOrElse(k: String)(fallback: ⇒ Future[Option[T]]): Future[Option[T]] = {
+  def getOrElse(k: String, ttl: Option[Long] = None)(fallback: ⇒ Future[Option[T]]): Future[Option[T]] = {
 
     for {
       tOption ← redis.get(k)
       fallbackOption ← if (tOption.isEmpty) fallback else Future.successful(tOption)
-      _ ← if (fallbackOption.isDefined) redis.set(k, fallbackOption.get) else Future.unit
+      _ ← if (fallbackOption.isDefined) redis.set(k, fallbackOption.get, exSeconds = ttl) else Future.unit
     } yield fallbackOption
 
   }

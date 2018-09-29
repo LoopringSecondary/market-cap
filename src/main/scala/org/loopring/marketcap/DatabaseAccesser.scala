@@ -15,21 +15,9 @@ class DatabaseAccesser(
   type ResultSet = slick.jdbc.PositionedResult
   type ResultInt = slick.dbio.DBIO[Int]
 
-  //  type
-
   def saveOrUpdate[T](params: T*)(implicit fallback: T ⇒ ResultInt): Future[Int] = {
     Source[T](params.to[collection.immutable.Seq]).via(Slick.flow(fallback)) runReduce (_ + _)
   }
-
-  //  def list[T](statement: SQLActionBuilder)(implicit fallback: ResultSet ⇒ T): Future[Seq[T]] = {
-  //    implicit val result: GetResult[T] = GetResult(fallback)
-  //    Slick.source(statement.as[T]).runWith(Sink.seq)
-  //  }
-  //
-  //  def head[T](statement: SQLActionBuilder)(implicit fallback: ResultSet ⇒ T): Future[T] = {
-  //    implicit val result: GetResult[T] = GetResult(fallback)
-  //    Slick.source(statement.as[T]).runWith(Sink.head)
-  //  }
 
   implicit class SQL(sql: SQLActionBuilder) {
 

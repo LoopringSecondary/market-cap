@@ -15,6 +15,8 @@ class TokenIcoCrawlerActor(
   type JDoc = org.jsoup.nodes.Document
 
   override def preStart(): Unit = {
+
+    //TODO(Toan) 这里需要添加消息
     timers.startSingleTimer("", "", 5 seconds)
   }
 
@@ -55,16 +57,16 @@ class TokenIcoCrawlerActor(
 
   }
 
-  def toUnixtime: PartialFunction[String, String] = {
+  private def toUnixtime: PartialFunction[String, String] = {
     case str: String ⇒
       val format = new SimpleDateFormat("MMM dd, yyyy")
       format.parse(str).getTime.toString
   }
 
-  def toTrimEth: PartialFunction[String, String] = {
+  private def toTrimEth: PartialFunction[String, String] = {
     case str: String ⇒ str.replaceAll("ETH", "").trim
   }
 
-  def get(url: String): JDoc = Jsoup.connect(url).get()
+  private def get(url: String): JDoc = Jsoup.connect(url).get()
 
 }

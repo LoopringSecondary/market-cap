@@ -18,13 +18,21 @@ enum Intervals {
 
 // for token list
 message GetTokenListReq {
+    google.protobuf.StringValue symbol = 1;
+    google.protobuf.Int32Value start_time = 2;
+    google.protobuf.Int32Value end_time = 3;
 }
 
 message GetTokenListRes {
-    int32 id = 1;
+    repeated TokenInfo list = 1;
+}
+
+message TokenInfo {
+    string address = 1;
     string name = 2;
     string symbol = 3;
     string website = 4;
+    int32 decimals = 5;
 }
 
 // 折线图

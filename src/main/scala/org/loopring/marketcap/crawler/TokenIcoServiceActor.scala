@@ -1,21 +1,20 @@
 package org.loopring.marketcap.crawler
 
-import akka.actor.Actor
+import akka.actor.{ Actor, ActorSystem }
+import akka.pattern.pipe
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.slick.scaladsl.SlickSession
-import akka.pattern.pipe
 import org.loopring.marketcap.DatabaseAccesser
 import org.loopring.marketcap.proto.data._
 
-import scala.concurrent.ExecutionContextExecutor
-
-class TokenIcoDatabaseActor(
+class TokenIcoServiceActor(
   implicit
+  system: ActorSystem,
   mat: ActorMaterializer,
-  ec: ExecutionContextExecutor,
   session: SlickSession) extends DatabaseAccesser with Actor {
 
   import session.profile.api._
+  import system.dispatcher
 
   override def receive: Receive = {
     case info: TokenIcoInfo ⇒
