@@ -16,6 +16,39 @@ enum Intervals {
     ALL = 6;
 }
 
+//////////////////////
+//  for common use
+/////////////////////
+message TokenInfo {
+    string address = 1;
+    string name = 2;
+    string symbol = 3;
+    string website = 4;
+    int32 decimals = 5;
+}
+
+message TokenIcoInfo {
+    string token_address = 1;
+    string ico_start_date = 2;
+    string ico_end_date = 3;
+    string hard_cap = 4;
+    string soft_cap = 5;
+    string raised = 6;
+    string ico_price = 7;
+    string country = 8;
+}
+
+
+message GetTokenTickerReq {
+    google.protobuf.StringValue symbol = 1;
+}
+
+message GetTokenTickerRes {
+    string symbol = 1;
+
+}
+
+
 // for token list
 message GetTokenListReq {
     google.protobuf.StringValue symbol = 1;
@@ -25,14 +58,6 @@ message GetTokenListReq {
 
 message GetTokenListRes {
     repeated TokenInfo list = 1;
-}
-
-message TokenInfo {
-    string address = 1;
-    string name = 2;
-    string symbol = 3;
-    string website = 4;
-    int32 decimals = 5;
 }
 
 // 折线图
@@ -81,17 +106,6 @@ message GetTokenIcoInfoReq {
 
 message GetTokenIcoInfoRes {
     repeated TokenIcoInfo list = 1;
-}
-
-message TokenIcoInfo {
-    string token_address = 1;
-    string ico_start_date = 2;
-    string ico_end_date = 3;
-    string hard_cap = 4;
-    string soft_cap = 5;
-    string raised = 6;
-    string ico_price = 7;
-    string country = 8;
 }
 
 // for kline

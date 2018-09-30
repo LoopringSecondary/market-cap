@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.loopring
+package org.loopring.marketcap.broker
 
-package object marketcap {
+import akka.actor.Actor
 
-  type Bytes = Array[Byte]
+class HuobiMarketBroker extends Actor {
 
-  type ProtoBuf[T] = scalapb.GeneratedMessage with scalapb.Message[T]
+  override def receive: Receive = {
+    case s: String ⇒
 
+  }
 }

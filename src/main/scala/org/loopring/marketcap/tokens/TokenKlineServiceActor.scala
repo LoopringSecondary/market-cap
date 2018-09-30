@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.loopring
+package org.loopring.marketcap.tokens
 
-package object marketcap {
+import akka.actor.Actor
 
-  type Bytes = Array[Byte]
+class TokenKlineServiceActor extends Actor {
 
-  type ProtoBuf[T] = scalapb.GeneratedMessage with scalapb.Message[T]
+  override def receive: Receive = {
+    case s: String ⇒
+  }
 
 }
