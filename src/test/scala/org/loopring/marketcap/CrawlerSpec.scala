@@ -3,8 +3,6 @@ package org.loopring.marketcap
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormatter
 import org.jsoup.Jsoup
 import org.jsoup.select.NodeFilter
 import org.loopring.marketcap

@@ -28,6 +28,8 @@ class ProtoBufMessageCacher[T <: ProtoBuf[T]](
   system: ActorSystem,
   c: scalapb.GeneratedMessageCompanion[T]) {
 
+  implicit val ec = system.dispatcher
+
   private[this] implicit val deserializer = new ProtoBufByteStringDeserializer[T]
 
   private[this] implicit val serializer = new ProtoBufByteStringSerializer[T]

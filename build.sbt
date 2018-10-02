@@ -34,6 +34,7 @@ libraryDependencies ++= {
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
     "com.typesafe.slick" %% "slick-testkit" % "3.2.3" % Test,
     "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
   )
 }

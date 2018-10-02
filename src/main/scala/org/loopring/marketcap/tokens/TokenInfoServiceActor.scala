@@ -38,7 +38,7 @@ class TokenInfoServiceActor(
     case req: GetTokenListReq ⇒
 
       // TODO(Toan) 这里可能来自数据库或者cache
-      implicit val toTokenInfo = (r: ResultSet) ⇒
+      implicit val toTokenInfo = (r: ResultRow) ⇒
         TokenInfo(address = r <<, name = r <<, symbol = r <<, website = r <<, decimals = r <<)
 
       val res =
@@ -46,7 +46,7 @@ class TokenInfoServiceActor(
              from t_token_info
              where symbol like
               concat('%', ${req.symbol.getOrElse("")}, '%')
-          """.list[TokenInfo].map(GetTokenListRes(_))
+          """.list[TokenInfo] //.map(GetTokenListRes(_))
 
       res pipeTo sender
   }

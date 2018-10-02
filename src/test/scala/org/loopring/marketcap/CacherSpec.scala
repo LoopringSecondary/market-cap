@@ -14,14 +14,14 @@ class CacherSpec extends MarketCapSpec {
   "test1" must {
     "redis set" in {
 
-      val req = GetTokenListRes(id = 10, name = "Loopring", symbol = "LRC", website = "loopring")
-      val d = new ProtoBufMessageCacher[GetTokenListRes]()
-      d.put("haha", req).foreach(println)
-
-      d.get("haha").foreach {
-        case Some(x) ⇒ println("xxx =>>>>" + x.name + "#" + x.symbol)
-        case _ ⇒ println("nonononon")
-      }
+      //      val req = GetTokenListRes(id = 10, name = "Loopring", symbol = "LRC", website = "loopring")
+      //      val d = new ProtoBufMessageCacher[GetTokenListRes]()
+      //      d.put("haha", req).foreach(println)
+      //
+      //      d.get("haha").foreach {
+      //        case Some(x) ⇒ println("xxx =>>>>" + x.name + "#" + x.symbol)
+      //        case _ ⇒ println("nonononon")
+      //      }
     }
   }
 
@@ -29,20 +29,20 @@ class CacherSpec extends MarketCapSpec {
 
     "redis set with timeout" in {
 
-      val req = GetTokenListRes(id = 10, name = "Loopring", symbol = "LRC", website = "loopring")
-      val d = new ProtoBufMessageCacher[GetTokenListRes]()
-
-
-      d.put("ddk", req, 10l).foreach(println)
-
-      // Thread.sleep(10)
-
-      //      redis.lpush()
-
-      d.get("ddhk").foreach {
-        case Some(x) ⇒ println("eeee =>>>>" + x.name + "#" + x.symbol)
-        case _ ⇒ println("nonononon")
-      }
+      //      val req = GetTokenListRes(id = 10, name = "Loopring", symbol = "LRC", website = "loopring")
+      //      val d = new ProtoBufMessageCacher[GetTokenListRes]()
+      //
+      //
+      //      d.put("ddk", req, 10l).foreach(println)
+      //
+      //      // Thread.sleep(10)
+      //
+      //      //      redis.lpush()
+      //
+      //      d.get("ddhk").foreach {
+      //        case Some(x) ⇒ println("eeee =>>>>" + x.name + "#" + x.symbol)
+      //        case _ ⇒ println("nonononon")
+      //      }
     }
 
   }
@@ -50,13 +50,13 @@ class CacherSpec extends MarketCapSpec {
   "test3" must {
     "redis lpush" in {
 
-      val req = GetTokenListRes(id = Random.nextInt(100), name = "Loopring", symbol = "LRC", website = "loopring")
-
-
-      val d = new ProtoBufMessageCacher[GetTokenListRes]()
-
-
-      d.push("haha", Seq.fill(10)(req)).foreach(println)
+      //      val req = GetTokenListRes(id = Random.nextInt(100), name = "Loopring", symbol = "LRC", website = "loopring")
+      //
+      //
+      //      val d = new ProtoBufMessageCacher[GetTokenListRes]()
+      //
+      //
+      //      d.push("haha", Seq.fill(10)(req)).foreach(println)
 
     }
   }
@@ -64,14 +64,14 @@ class CacherSpec extends MarketCapSpec {
   "test4" must {
     "redis lrage" in {
 
-      val d = new ProtoBufMessageCacher[GetTokenListRes]()
-
-      d.pull("haha", 0, -1).foreach {
-        _.foreach { x ⇒
-          println("xx =>>" + x.id)
-
-        }
-      }
+      //      val d = new ProtoBufMessageCacher[GetTokenListRes]()
+      //
+      //      d.pull("haha", 0, -1).foreach {
+      //        _.foreach { x ⇒
+      //          println("xx =>>" + x.id)
+      //
+      //        }
+      //      }
 
     }
   }

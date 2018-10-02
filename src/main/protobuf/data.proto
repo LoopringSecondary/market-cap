@@ -16,6 +16,14 @@ enum Intervals {
     ALL = 6;
 }
 
+message BinanceTokenTicker {
+    string symbol = 1;
+    string price_change = 2;
+    string price_change_percent = 3;
+    string weighted_avg_price = 4;
+    string prev_close_price = 5;
+}
+
 //////////////////////
 //  for common use
 /////////////////////
@@ -45,7 +53,6 @@ message GetTokenTickerReq {
 
 message GetTokenTickerRes {
     string symbol = 1;
-
 }
 
 

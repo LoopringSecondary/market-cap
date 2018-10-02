@@ -22,4 +22,7 @@ package object broker {
 
   // TODO(Toan) api接口需要整理
 
+  //  lazy val connectionFlow: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] =
+  //    Http().outgoingConnection("akka.io")
+
 }

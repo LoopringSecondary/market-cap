@@ -16,12 +16,29 @@
 
 package org.loopring.marketcap.broker
 
-import akka.actor.Actor
+import akka.actor.{ Actor, ActorSystem }
+import akka.stream.ActorMaterializer
 
-class HuobiMarketBroker extends Actor {
+import scala.concurrent.Future
 
+class HuobiMarketBroker(
+  implicit
+  val system: ActorSystem,
+  val mat: ActorMaterializer)
+  extends Actor with HttpConnector {
+
+  override private[broker] val connection = https("api.huobi.pro", proxy = Some(true))
+
+  //https://api.huobi.pro/market/detail/merged?symbol=aeeth
   override def receive: Receive = {
     case s: String ⇒
 
+    // val done: Future[Nothing] = get("/market/detail/merged?symbol=aeeth")
+
+    //      done.onComplete {
+    //
+    //      }
+
   }
+
 }

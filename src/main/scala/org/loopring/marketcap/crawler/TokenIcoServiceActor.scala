@@ -45,7 +45,7 @@ class TokenIcoServiceActor(
 
     case req: GetTokenIcoInfoReq ⇒
 
-      implicit val toGetTokenIcoInfo = (r: ResultSet) ⇒
+      implicit val toGetTokenIcoInfo = (r: ResultRow) ⇒
         TokenIcoInfo(tokenAddress = r <<, icoStartDate = r <<, icoEndDate = r <<,
           hardCap = r <<, softCap = r <<, raised = r <<, icoPrice = r <<, country = r <<)
 
