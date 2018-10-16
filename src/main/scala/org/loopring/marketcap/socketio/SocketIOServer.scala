@@ -16,6 +16,7 @@
 
 package org.loopring.marketcap.socketio
 
+import org.loopring.marketcap._
 import akka.actor.ActorRef
 import com.corundumstudio.socketio.Configuration
 

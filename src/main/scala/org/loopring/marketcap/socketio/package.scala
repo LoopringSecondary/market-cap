@@ -21,8 +21,6 @@ import scalapb.json4s.JsonFormat
 
 package object socketio {
 
-  type ProtoBuf[T] = scalapb.GeneratedMessage with scalapb.Message[T]
-
   implicit def string2ProtoBuf[T <: ProtoBuf[T]](
     implicit
     c: scalapb.GeneratedMessageCompanion[T]) = (json: String) ⇒ JsonFormat.fromJsonString[T](json)
