@@ -50,8 +50,8 @@ class RootEndpoints(
   } ~ path("tokens") {
     get {
       // TODO(Toan) 这里应该有查询条件
-      val f = (tokenInfoDatabaseActor ? GetTokenListReq()).mapTo[GetTokenListRes]
-      complete(f.map(_.list))
+      val f = (tokenInfoDatabaseActor ? GetTokenListReq()).mapTo[Seq[TokenInfo]]
+      complete(f)
     }
   }
 
