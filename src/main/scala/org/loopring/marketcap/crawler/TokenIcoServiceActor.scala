@@ -38,10 +38,10 @@ class TokenIcoServiceActor(
     case info: TokenIcoInfo ⇒
 
       implicit val saveTokenIcoInfo = (info: TokenIcoInfo) ⇒
-        sqlu"""INSERT INTO lpr_token_ico_info(token_address, ico_start_date,
-          ico_end_date, hard_cap, soft_cap, raised, ico_price, from_country) VALUES(
+        sqlu"""INSERT INTO t_token_ico_info(token_address, ico_start_date,
+          ico_end_date, hard_cap, soft_cap, token_raised, ico_price, from_country) VALUES(
           ${info.tokenAddress}, ${info.icoStartDate}, ${info.icoEndDate}, ${info.hardCap},
-          ${info.softCap}, ${info.raised}, ${info.icoPrice}, ${info.country})"""
+          ${info.softCap}, ${info.tokenRaised}, ${info.icoPrice}, ${info.country})"""
 
       saveOrUpdate(info)
 
@@ -49,7 +49,7 @@ class TokenIcoServiceActor(
 
       implicit val toGetTokenIcoInfo = (r: ResultRow) ⇒
         TokenIcoInfo(tokenAddress = r <<, icoStartDate = r <<, icoEndDate = r <<,
-          hardCap = r <<, softCap = r <<, raised = r <<, icoPrice = r <<, country = r <<)
+          hardCap = r <<, softCap = r <<, tokenRaised = r <<, icoPrice = r <<, country = r <<)
 
       // TODO(Toan) 这里缺少where条件
       val res: Future[GetTokenIcoInfoRes] =

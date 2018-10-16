@@ -32,7 +32,7 @@ CREATE TABLE `t_token_holder` (
 -- ----------------------------
 DROP TABLE IF EXISTS `t_token_ico_info`;
 CREATE TABLE `t_token_ico_info` (
-  `token_address` varchar(40) NOT NULL,
+  `token_address` varchar(42) NOT NULL,
   `ico_start_date` bigint(4) DEFAULT NULL,
   `ico_end_date` bigint(4) DEFAULT NULL,
   `hard_cap` varchar(20) DEFAULT NULL,
@@ -41,6 +41,7 @@ CREATE TABLE `t_token_ico_info` (
   `ico_price` varchar(20) DEFAULT NULL,
   `from_country` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`token_address`)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -109,22 +110,6 @@ CREATE TABLE `lpr_cmc_ticker_infos` (
   `percent_change_7d` varchar(40) DEFAULT NULL COMMENT 'percent_change_7d',
   `last_updated` bigint(20) DEFAULT NULL COMMENT 'last_updated',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- ----------------------------
---  Table structure for `lpr_token_ico_info`
--- ----------------------------
-DROP TABLE IF EXISTS `lpr_token_ico_info`;
-CREATE TABLE `lpr_token_ico_info` (
-  `token_address` varchar(40) NOT NULL,
-  `ico_start_date` bigint(4) DEFAULT NULL,
-  `ico_end_date` bigint(4) DEFAULT NULL,
-  `hard_cap` varchar(40) DEFAULT NULL,
-  `soft_cap` varchar(40) DEFAULT NULL,
-  `raised` varchar(40) DEFAULT NULL,
-  `ico_price` varchar(40) DEFAULT NULL,
-  `from_country` varchar(40) DEFAULT NULL,
-  PRIMARY KEY (`token_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;

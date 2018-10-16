@@ -65,7 +65,7 @@ class TokenIcoCrawlerActor(
         icoEndDate = icoEndDate,
         hardCap = hardCap,
         softCap = softCap,
-        raised = raised,
+        tokenRaised = raised,
         icoPrice = icoPrice,
         country = country)
 

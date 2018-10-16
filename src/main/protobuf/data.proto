@@ -37,13 +37,13 @@ message TokenInfo {
 }
 
 message TokenIcoInfo {
-    string token_address = 1;
-    string ico_start_date = 2;
-    string ico_end_date = 3;
-    string hard_cap = 4;
-    string soft_cap = 5;
-    string raised = 6;
-    string ico_price = 7;
+    string tokenAddress = 1;
+    string icoStartDate = 2;
+    string icoEndDate = 3;
+    string hardCap = 4;
+    string softCap = 5;
+    string tokenRaised = 6;
+    string icoPrice = 7;
     string country = 8;
 }
 
