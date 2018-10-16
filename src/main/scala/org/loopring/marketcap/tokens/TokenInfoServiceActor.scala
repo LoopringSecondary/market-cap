@@ -24,6 +24,8 @@ import com.typesafe.scalalogging.LazyLogging
 import org.loopring.marketcap.DatabaseAccesser
 import org.loopring.marketcap.proto.data._
 
+import scala.concurrent.Future
+
 class TokenInfoServiceActor(
   implicit
   system: ActorSystem,
@@ -39,14 +41,13 @@ class TokenInfoServiceActor(
 
       // TODO(Toan) 这里可能来自数据库或者cache
       implicit val toTokenInfo = (r: ResultRow) ⇒
-        TokenInfo(address = r <<, name = r <<, symbol = r <<, website = r <<, decimals = r <<)
+        TokenInfo(protocol = r <<, deny = r <<, isMarket = r <<, symbol = r <<, source = r <<, decimals = r <<)
 
-      val res =
-        sql"""select address, name, symbol, website, decimals
-             from t_token_info
-             where symbol like
-              concat('%', ${req.symbol.getOrElse("")}, '%')
-          """.list[TokenInfo] //.map(GetTokenListRes(_))
+      val res: Future[GetTokenListRes] =
+        sql"""select protocol,deny,is_market,symbol,source,decimals
+              from t_token_info
+              where symbol like concat('%', ${req.symbol.getOrElse("")}, '%')
+          """.list[TokenInfo].map(GetTokenListRes(_))
 
       res pipeTo sender
   }

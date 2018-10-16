@@ -48,12 +48,13 @@ CREATE TABLE `t_token_ico_info` (
 -- ----------------------------
 DROP TABLE IF EXISTS `t_token_info`;
 CREATE TABLE `t_token_info` (
-  `address` varchar(40) NOT NULL,
-  `name` varchar(80) DEFAULT NULL,
-  `symbol` varchar(20) DEFAULT NULL,
-  `website` varchar(80) DEFAULT NULL,
-  `decimals` int(4) DEFAULT NULL,
-  PRIMARY KEY (`address`)
+  `protocol` varchar(42) NOT NULL,
+  `deny` TINYINT(1) DEFAULT 0,
+  `is_market` TINYINT(1) DEFAULT 0,
+  `symbol` varchar(80) NOT NULL,
+  `source` varchar(80) DEFAULT NULL,
+  `decimals` int(4) NOT NULL,
+  PRIMARY KEY (`Protocol`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -84,6 +85,45 @@ CREATE TABLE `t_token_market_cap` (
   `volume_lrc` varchar(40) DEFAULT NULL COMMENT '24小时交易量(lrc)',
   `created_at` bigint(4) DEFAULT NULL COMMENT '创建时间',
   `modified_at` bigint(4) DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`token_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Table structure for `lpr_cmc_ticker_infos`
+-- ----------------------------
+DROP TABLE IF EXISTS `lpr_cmc_ticker_info`;
+CREATE TABLE `lpr_cmc_ticker_infos` (
+  `id` int(11) NOT NULL COMMENT 'id',
+  `name` varchar(60) DEFAULT NULL COMMENT 'name',
+  `symbol` varchar(40) DEFAULT NULL COMMENT 'symbol',
+  `website_slug` varchar(60) DEFAULT NULL COMMENT 'website slug',
+  `market` varchar(40) DEFAULT NULL COMMENT 'market',
+  `rank` int(11) NOT NULL COMMENT 'rank',
+  `circulating_supply` varchar(40) DEFAULT NULL COMMENT 'circulating_supply',
+  `total_supply` varchar(40) DEFAULT NULL COMMENT 'total_supply',
+  `price`varchar(40) DEFAULT NULL COMMENT 'price',
+  `volume_24h` varchar(40) DEFAULT NULL COMMENT 'volume_24h',
+  `market_cap` varchar(40) DEFAULT NULL COMMENT 'market_cap',
+  `percent_change_1h` varchar(40) DEFAULT NULL COMMENT 'percent_change_1h',
+  `percent_change_24h` varchar(40) DEFAULT NULL COMMENT 'percent_change_24h',
+  `percent_change_7d` varchar(40) DEFAULT NULL COMMENT 'percent_change_7d',
+  `last_updated` bigint(20) DEFAULT NULL COMMENT 'last_updated',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Table structure for `lpr_token_ico_info`
+-- ----------------------------
+DROP TABLE IF EXISTS `lpr_token_ico_info`;
+CREATE TABLE `lpr_token_ico_info` (
+  `token_address` varchar(40) NOT NULL,
+  `ico_start_date` bigint(4) DEFAULT NULL,
+  `ico_end_date` bigint(4) DEFAULT NULL,
+  `hard_cap` varchar(40) DEFAULT NULL,
+  `soft_cap` varchar(40) DEFAULT NULL,
+  `raised` varchar(40) DEFAULT NULL,
+  `ico_price` varchar(40) DEFAULT NULL,
+  `from_country` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`token_address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

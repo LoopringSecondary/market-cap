@@ -23,6 +23,8 @@ import akka.stream.alpakka.slick.scaladsl.SlickSession
 import org.loopring.marketcap.DatabaseAccesser
 import org.loopring.marketcap.proto.data._
 
+import scala.concurrent.Future
+
 class TokenIcoServiceActor(
   implicit
   system: ActorSystem,
@@ -36,8 +38,8 @@ class TokenIcoServiceActor(
     case info: TokenIcoInfo ⇒
 
       implicit val saveTokenIcoInfo = (info: TokenIcoInfo) ⇒
-        sqlu"""INSERT INTO t_token_ico_onfo(token_address, ico_start_date,
-          ico_end_date, hard_cap, soft_cap, token_raised, ico_price, from_country) VALUES(
+        sqlu"""INSERT INTO lpr_token_ico_info(token_address, ico_start_date,
+          ico_end_date, hard_cap, soft_cap, raised, ico_price, from_country) VALUES(
           ${info.tokenAddress}, ${info.icoStartDate}, ${info.icoEndDate}, ${info.hardCap},
           ${info.softCap}, ${info.raised}, ${info.icoPrice}, ${info.country})"""
 
@@ -50,7 +52,7 @@ class TokenIcoServiceActor(
           hardCap = r <<, softCap = r <<, raised = r <<, icoPrice = r <<, country = r <<)
 
       // TODO(Toan) 这里缺少where条件
-      val res =
+      val res: Future[GetTokenIcoInfoRes] =
         sql"""SELECT token_address, ico_start_date, ico_end_date, hard_cap, soft_cap, token_raised,
              ico_price, from_country from t_token_ico_info"""
           .list[TokenIcoInfo].map(GetTokenIcoInfoRes(_))

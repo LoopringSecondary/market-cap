@@ -28,11 +28,12 @@ message BinanceTokenTicker {
 //  for common use
 /////////////////////
 message TokenInfo {
-    string address = 1;
-    string name = 2;
-    string symbol = 3;
-    string website = 4;
-    int32 decimals = 5;
+    string protocol = 1;
+    bool deny = 2;
+    bool isMarket = 3;
+    string symbol = 4;
+    string source = 5;
+    int32 decimals = 6;
 }
 
 message TokenIcoInfo {
