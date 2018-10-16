@@ -23,6 +23,7 @@ import akka.stream.alpakka.slick.scaladsl.SlickSession
 import com.typesafe.config.ConfigFactory
 import org.loopring.marketcap.broker.BinanceMarketBroker
 import org.loopring.marketcap.endpoints.RootEndpoints
+import org.loopring.marketcap.socketio.SocketIOServer
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -56,5 +57,7 @@ object Main extends App {
     case Failure(ex) ⇒ ex.printStackTrace()
   }
   bind.failed.foreach(_.printStackTrace())
+
+  new SocketIOServer
 
 }

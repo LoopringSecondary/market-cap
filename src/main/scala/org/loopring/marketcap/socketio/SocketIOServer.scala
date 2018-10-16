@@ -31,7 +31,12 @@ class SocketIOServer(port: Int = 9092) {
     cfg
   }
 
-  private lazy val server = new com.corundumstudio.socketio.SocketIOServer(config)
+  private lazy val server = {
+    val _server = new com.corundumstudio.socketio.SocketIOServer(config)
+    _server.addConnectListener(new ConnectionListener)
+    _server.addDisconnectListener(new DisconnectionListener)
+    _server
+  }
 
   def registerMessage[I <: ProtoBuf[I], O <: ProtoBuf[O]](event: String, actorRef: ActorRef)(
     implicit
