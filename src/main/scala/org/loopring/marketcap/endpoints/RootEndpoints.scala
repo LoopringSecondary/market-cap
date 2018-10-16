@@ -74,9 +74,7 @@ class RootEndpoints(
         s"""{"jsonrpc":"2.0", "error": {"code": 500, "message": "${
           msg
             .replaceAll("\"", "\\\"")
-        }"}}"""
-      )
-    )
+        }"}}"""))
   }
 
 }
