@@ -16,7 +16,7 @@
 
 package org.loopring.marketcap.broker
 
-import akka.actor.{ Actor, ActorSystem }
+import akka.actor.{ Actor, ActorSystem, Timers }
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import org.loopring.marketcap.proto.data.BinanceTokenTicker
@@ -25,9 +25,14 @@ class BinanceMarketBroker(
   implicit
   val system: ActorSystem,
   val mat: ActorMaterializer)
-  extends Actor with HttpConnector {
+  extends Actor with HttpConnector with Timers {
 
   override private[broker] val connection = https("api.binance.com", proxy = Some(true))
+
+  override def preStart(): Unit = {
+    // timers.startPeriodicTimer()
+    // context.system.scheduler.schedule(2, 3, this, )
+  }
 
   override def receive: Receive = {
     case s: String ⇒
@@ -44,3 +49,4 @@ class BinanceMarketBroker(
   }
 
 }
+

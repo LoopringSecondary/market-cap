@@ -17,10 +17,12 @@
 package org.loopring.marketcap.endpoints
 
 import akka.actor.{ ActorRef, ActorSystem }
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCodes }
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import akka.pattern.ask
+import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import akka.pattern.{ AskTimeoutException, ask }
 import akka.util.Timeout
+import com.typesafe.scalalogging.LazyLogging
 import org.loopring.marketcap.Json4sSupport
 import org.loopring.marketcap.proto.data._
 
@@ -29,7 +31,7 @@ import scala.concurrent.duration._
 class RootEndpoints(
   tokenInfoDatabaseActor: ActorRef)(
   implicit
-  system: ActorSystem) extends Json4sSupport {
+  system: ActorSystem) extends Json4sSupport with LazyLogging {
 
   import system.dispatcher
 
@@ -38,7 +40,16 @@ class RootEndpoints(
   val webSocketEndpoints = new WebSocketEndpoints
 
   def apply(): Route = {
-    root ~ webSocketEndpoints()
+    val exceptionHandler = ExceptionHandler {
+      case e: AskTimeoutException ⇒
+        complete(errorResponse("Timeout or Has no routee"))
+      case e: Throwable ⇒
+        logger.error(s"error: ${e.getMessage}", e)
+        complete(errorResponse(e.getMessage))
+    }
+
+    handleExceptions(exceptionHandler)(root ~ webSocketEndpoints())
+
   }
 
   def root: Route = {
@@ -53,6 +64,17 @@ class RootEndpoints(
       val f = (tokenInfoDatabaseActor ? GetTokenListReq()).mapTo[GetTokenListRes]
       complete(f.map(_.list))
     }
+  }
+
+  private def errorResponse(msg: String): HttpResponse = {
+    HttpResponse(
+      StatusCodes.InternalServerError,
+      entity = HttpEntity(
+        ContentTypes.`application/json`,
+        s"""{"jsonrpc":"2.0", "error": {"code": 500, "message": "${
+          msg
+            .replaceAll("\"", "\\\"")
+        }"}}"""))
   }
 
 }
