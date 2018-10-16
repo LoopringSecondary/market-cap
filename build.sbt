@@ -1,12 +1,8 @@
-name := "market-cap"
+import sbt._
+import Keys._
 
-version := "0.1"
 
-scalaVersion := "2.12.6"
-
-PB.targets in Compile := Seq(scalapb.gen() -> (sourceManaged in Compile).value)
-
-libraryDependencies ++= {
+lazy val dependencies = {
   val akkaVersion = "2.5.17"
   val akkaHttpVersion = "10.1.5"
 
@@ -38,3 +34,18 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
   )
 }
+
+lazy val market_cap = (project in file("."))
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(AutomateHeaderPlugin)
+  .settings(
+    name := "market-cap",
+    version := "0.1",
+    scalaVersion := "2.12.6",
+    organization := "org.loopring",
+    organizationName := "Loopring Foundation",
+    startYear := Some(2018),
+    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+    PB.targets in Compile := Seq(scalapb.gen() -> (sourceManaged in Compile).value),
+    libraryDependencies ++= dependencies
+  )
