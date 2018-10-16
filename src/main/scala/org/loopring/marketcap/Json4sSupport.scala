@@ -16,7 +16,7 @@
 
 package org.loopring.marketcap
 
-import org.json4s.JsonAST.{ JNull, JString }
+import org.json4s.JsonAST.{ JNull, JObject, JString }
 import org.json4s.{ CustomSerializer, DefaultFormats }
 
 trait Json4sSupport extends de.heikoseeberger.akkahttpjson4s.Json4sSupport {
@@ -31,7 +31,12 @@ private class EmptyValueSerializer
     _ ⇒
       ({
         case JNull ⇒ ""
-        case JString(x) => x
+        case JString(x) ⇒ x
+        case JObject(x) ⇒
+          import org.json4s.JsonDSL._
+          import org.json4s.jackson.JsonMethods._
+
+          compact(render(x))
       }, {
         case "" ⇒ JNull
       }))
