@@ -33,8 +33,8 @@ CREATE TABLE `t_token_holder` (
 DROP TABLE IF EXISTS `t_token_ico_info`;
 CREATE TABLE `t_token_ico_info` (
   `token_address` varchar(42) NOT NULL,
-  `ico_start_date` bigint(4) DEFAULT NULL,
-  `ico_end_date` bigint(4) DEFAULT NULL,
+  `ico_start_date` varchar(20) DEFAULT NULL,
+  `ico_end_date` varchar(20) DEFAULT NULL,
   `hard_cap` varchar(20) DEFAULT NULL,
   `soft_cap` varchar(20) DEFAULT NULL,
   `token_raised` varchar(20) DEFAULT NULL,

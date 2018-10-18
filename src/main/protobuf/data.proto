@@ -108,8 +108,7 @@ message GetTokenMarketVolumeRes {
 }
 
 message GetTokenIcoInfoReq {
-    google.protobuf.StringValue symbol = 1;
-    google.protobuf.StringValue address = 2;
+    google.protobuf.StringValue tokenAddress = 1;
 }
 
 message GetTokenIcoInfoRes {

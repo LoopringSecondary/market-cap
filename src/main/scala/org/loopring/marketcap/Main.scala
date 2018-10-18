@@ -16,6 +16,8 @@
 
 package org.loopring.marketcap
 
+import java.text.SimpleDateFormat
+
 import akka.actor.{ ActorSystem, Props }
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
@@ -25,6 +27,7 @@ import org.loopring.marketcap.broker.BinanceMarketBroker
 import org.loopring.marketcap.endpoints.RootEndpoints
 import org.loopring.marketcap.socketio.SocketIOServer
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
+import org.loopring.marketcap.crawler.{ TokenIcoCrawlerActor, TokenIcoServiceActor }
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -45,8 +48,16 @@ object Main extends App {
   implicit val session = SlickSession.forConfig(databaseConfig)
   system.registerOnTermination(() => session.close())
 
-  // for endpoints
+  //crawler token's icoInfo
+  val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
+  val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
+
+  //query tokenlist
   val tokenInfoDatabaseActor = system.actorOf(Props(new TokenInfoServiceActor()), "token_info")
+  //query tokenIcolist
+  //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
+
+  // for endpoints
   val root = new RootEndpoints(tokenInfoDatabaseActor)
   val bind = Http().bindAndHandle(root(), interface = "0.0.0.0", port = 9000)
 

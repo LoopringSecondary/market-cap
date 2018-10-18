@@ -41,7 +41,9 @@ class TokenIcoServiceActor(
         sqlu"""INSERT INTO t_token_ico_info(token_address, ico_start_date,
           ico_end_date, hard_cap, soft_cap, token_raised, ico_price, from_country) VALUES(
           ${info.tokenAddress}, ${info.icoStartDate}, ${info.icoEndDate}, ${info.hardCap},
-          ${info.softCap}, ${info.tokenRaised}, ${info.icoPrice}, ${info.country})"""
+          ${info.softCap}, ${info.tokenRaised}, ${info.icoPrice}, ${info.country}) ON DUPLICATE KEY UPDATE ico_start_date=${info.icoStartDate},
+          ico_end_date=${info.icoEndDate},hard_cap=${info.hardCap},soft_cap=${info.softCap},token_raised=${info.tokenRaised},
+          ico_price=${info.icoPrice},from_country=${info.country}"""
 
       saveOrUpdate(info)
 

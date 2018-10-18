@@ -16,51 +16,60 @@
 
 package org.loopring.marketcap.crawler
 
-import java.text.SimpleDateFormat
-
 import akka.actor.{ Actor, ActorRef, Timers }
+import akka.pattern.{ AskTimeoutException, ask }
+import akka.util.Timeout
 import org.jsoup.Jsoup
-import org.loopring.marketcap.proto.data.TokenIcoInfo
+import org.loopring.marketcap.proto.data.{ GetTokenListRes, _ }
 
 import scala.concurrent.duration._
-
 class TokenIcoCrawlerActor(
-  dbAccess: ActorRef // TokenIcoDatabaseActor
+  tokenIcoServiceActor: ActorRef, // TokenIcoServiceActor
+  tokenInfoServiceActor: ActorRef // TokenInfoServiceActor
 ) extends Actor with Timers {
+
+  implicit val timeout = Timeout(5 seconds)
+  implicit val ec = context.system.dispatcher
 
   type JDoc = org.jsoup.nodes.Document
 
   override def preStart(): Unit = {
-
-    //TODO(Toan) 这里需要添加消息
-    timers.startSingleTimer("", "", 5 seconds)
+    //daliy schedule token's ico info
+    timers.startPeriodicTimer("cronSyncTokenIcoInfo", "syncTokenIcoInfo", 24 hours)
   }
 
   override def receive: Receive = {
     case _: String ⇒
+      val f = (tokenInfoServiceActor ? GetTokenListReq()).mapTo[GetTokenListRes]
+      f.foreach {
+        _.list.foreach { tokenInfo ⇒
+          crawlTokenIcoInfo(tokenInfo.protocol)
+        }
+      }
+  }
 
-      import collection.JavaConverters._
+  private def crawlTokenIcoInfo(tokenAddress: String): Unit = {
+    import collection.JavaConverters._
 
-      val doc = get("https://etherscan.io/token/0xef68e7c694f40c8202821edf525de3782458639f#tokenInfo")
+    val doc = get("https://etherscan.io/token/" + tokenAddress + "#tokenInfo")
+    val trs = doc.getElementsByTag("tr").asScala
 
-      val trs = doc.getElementsByTag("tr").asScala
+    val tdsMap = trs.filter(_.childNodeSize() == 7).map { tr ⇒
+      val childs = tr.children()
+      (childs.first().text().trim → childs.last().text().trim)
+    } toMap
 
-      val tdsMap = trs.filter(_.childNodeSize() == 7).map { tr ⇒
-        val childs = tr.children()
-        (childs.first().text().trim → childs.last().text().trim)
-      } toMap
-
-      val icoStartDate = tdsMap.get("ICO Start Date").map(toUnixtime).getOrElse("")
-      val icoEndDate = tdsMap.get("ICO End Date").map(toUnixtime).getOrElse("")
-
-      val hardCap = tdsMap.get("Hard Cap").map(toTrimEth).getOrElse("")
-      val softCap = tdsMap.get("Soft Cap").map(toTrimEth).getOrElse("")
-      val raised = tdsMap.get("Raised").map(toTrimEth).getOrElse("")
-      val icoPrice = tdsMap.get("ICO Price").map(toTrimEth).getOrElse("")
+    if (!tdsMap.isEmpty) {
+      val icoStartDate = tdsMap.get("ICO Start Date").getOrElse("")
+      val icoEndDate = tdsMap.get("ICO End Date").getOrElse("")
+      val hardCap = tdsMap.get("Hard Cap").getOrElse("")
+      val softCap = tdsMap.get("Soft Cap").getOrElse("")
+      val raised = tdsMap.get("Raised").getOrElse("")
+      val icoPrice = tdsMap.get("ICO Price").getOrElse("")
       val country = tdsMap.get("Country").getOrElse("")
 
       val tokenIcoInfo = TokenIcoInfo(
-        tokenAddress = "0xef68e7c694f40c8202821edf525de3782458639f",
+        tokenAddress = tokenAddress,
         icoStartDate = icoStartDate,
         icoEndDate = icoEndDate,
         hardCap = hardCap,
@@ -69,14 +78,8 @@ class TokenIcoCrawlerActor(
         icoPrice = icoPrice,
         country = country)
 
-      dbAccess ! tokenIcoInfo
-
-  }
-
-  private def toUnixtime: PartialFunction[String, String] = {
-    case str: String ⇒
-      val format = new SimpleDateFormat("MMM dd, yyyy")
-      format.parse(str).getTime.toString
+      tokenIcoServiceActor ! tokenIcoInfo
+    }
   }
 
   private def toTrimEth: PartialFunction[String, String] = {
@@ -84,5 +87,4 @@ class TokenIcoCrawlerActor(
   }
 
   private def get(url: String): JDoc = Jsoup.connect(url).get()
-
 }
