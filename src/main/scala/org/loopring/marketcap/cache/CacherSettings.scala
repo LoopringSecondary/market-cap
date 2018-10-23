@@ -45,8 +45,8 @@ private[cache] class CacherSettings(config: Config)(implicit system: ActorSystem
         val client = RedisClient(host = h, port = p)
         Left(client)
       case Seq(_*) ⇒
-        val cluster = RedisCluster(settings.map { list ⇒
-          RedisServer(host = list._1, port = list._2)
+        val cluster = RedisCluster(settings.map {
+          case (h, p) ⇒ RedisServer(host = h, port = p)
         })
         Right(cluster)
     }
