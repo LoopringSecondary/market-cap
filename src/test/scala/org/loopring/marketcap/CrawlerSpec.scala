@@ -67,7 +67,7 @@ class CrawlerSpec extends FlatSpec {
       icoEndDate = ff,
       hardCap = hardCap,
       softCap = softCap,
-      raised = raised,
+      tokenRaised = raised,
       // icoPricie = icoPricie,
       country = country)
 

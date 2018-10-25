@@ -142,6 +142,59 @@ message GetTokenKlineRes {
     repeated TokenKline klines = 1;
 }
 
+message TokenTickerInfo {
+     int32 tokenId = 1;
+    string name = 2;
+    string symbol = 3;
+    string websiteSlug = 4;
+    string market= 5;
+     int32 rank = 6;
+    double circulatingSupply = 7;
+    double totalSupply = 8;
+    double maxSupply = 9;
+    double price = 10;
+    double volume24h = 11;
+    double marketCap = 12;
+    double percentChange1h = 13;
+    double percentChange24h = 14;
+    double percentChange7d = 15;
+     int64 lastUpdated = 16;
+}
 
+message CMCTickerData {
+ int32 id = 1;
+ string name = 2;
+ string symbol = 3;
+ string slug = 4;
+ double circulating_supply = 5;
+ double total_supply = 6;
+ double max_supply = 7;
+ string date_added = 8;
+  int32 num_market_pairs = 9;
+  int32 cmc_rank = 10;
+ string last_updated = 11;
+ map<string, Quote> quote = 12;
+}
 
+message Quote {
+ double price = 1;
+ double volume_24h = 2;
+ double percent_change_1h = 3;
+ double percent_change_24h = 4;
+ double percent_change_7d = 5;
+ double market_cap = 6;
+ string last_updated = 7;
+}
 
+message TickerStatus {
+ string timestamp = 1;
+ int32 error_code  = 2;
+ string error_message = 3;
+ int32 elapsed = 4;
+ int32 credit_count = 5;
+}
+
+message TickerDataInfo {
+TickerStatus status = 1;
+repeated CMCTickerData data = 2;
+}

@@ -37,9 +37,9 @@ trait HttpConnector extends Json4sSupport {
 
   implicit val ex = system.dispatcher
 
-  private[broker] val connection: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]]
+  val connection: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]]
 
-  private[broker] val dispatcher = (request: HttpRequest) ⇒
+  val dispatcher = (request: HttpRequest) ⇒
     Source.single(request).via(connection).runWith(Sink.head)
 
   def https(
@@ -77,6 +77,11 @@ trait HttpConnector extends Json4sSupport {
   def get[T](uri: String)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
     val fallbackFuture = (r: Future[HttpResponse]) ⇒ r.flatMap(fallback)
     (dispatcher andThen fallbackFuture)(Get(uri))
+  }
+
+  def get[T](httpRequest: HttpRequest)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
+    val fallbackFuture = (r: Future[HttpResponse]) ⇒ r.flatMap(fallback)
+    (dispatcher andThen fallbackFuture)(httpRequest)
   }
 
   implicit class ResponseTo(response: HttpResponse) extends Unmarshal[HttpResponse](response) {}

@@ -27,7 +27,7 @@ class BinanceMarketBroker(
   val mat: ActorMaterializer)
   extends Actor with HttpConnector with Timers {
 
-  override private[broker] val connection = https("api.binance.com", proxy = Some(true))
+  override val connection = https("api.binance.com", proxy = Some(true))
 
   override def preStart(): Unit = {
     // timers.startPeriodicTimer()

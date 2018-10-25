@@ -27,7 +27,7 @@ class HuobiMarketBroker(
   val mat: ActorMaterializer)
   extends Actor with HttpConnector {
 
-  override private[broker] val connection = https("api.huobi.pro", proxy = Some(true))
+  override val connection = https("api.huobi.pro", proxy = Some(true))
 
   //https://api.huobi.pro/market/detail/merged?symbol=aeeth
   override def receive: Receive = {

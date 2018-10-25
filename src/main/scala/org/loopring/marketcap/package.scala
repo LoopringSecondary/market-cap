@@ -22,4 +22,5 @@ package object marketcap {
 
   type ProtoBuf[T] = scalapb.GeneratedMessage with scalapb.Message[T]
 
+  case class SeqTpro[T](t: Seq[T])
 }

@@ -90,24 +90,26 @@ CREATE TABLE `t_token_market_cap` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
---  Table structure for `lpr_cmc_ticker_infos`
+--  Table structure for `t_token_ticker_info`
 -- ----------------------------
-DROP TABLE IF EXISTS `lpr_cmc_ticker_info`;
-CREATE TABLE `lpr_cmc_ticker_infos` (
-  `id` int(11) NOT NULL COMMENT 'id',
-  `name` varchar(60) DEFAULT NULL COMMENT 'name',
+DROP TABLE IF EXISTS `t_token_ticker_info`;
+CREATE TABLE `t_token_ticker_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `token_id` int(11) NOT NULL COMMENT 'token_id',
+  `token_name` varchar(60) DEFAULT NULL COMMENT 'name',
   `symbol` varchar(40) DEFAULT NULL COMMENT 'symbol',
   `website_slug` varchar(60) DEFAULT NULL COMMENT 'website slug',
   `market` varchar(40) DEFAULT NULL COMMENT 'market',
-  `rank` int(11) NOT NULL COMMENT 'rank',
-  `circulating_supply` varchar(40) DEFAULT NULL COMMENT 'circulating_supply',
-  `total_supply` varchar(40) DEFAULT NULL COMMENT 'total_supply',
-  `price`varchar(40) DEFAULT NULL COMMENT 'price',
-  `volume_24h` varchar(40) DEFAULT NULL COMMENT 'volume_24h',
-  `market_cap` varchar(40) DEFAULT NULL COMMENT 'market_cap',
-  `percent_change_1h` varchar(40) DEFAULT NULL COMMENT 'percent_change_1h',
-  `percent_change_24h` varchar(40) DEFAULT NULL COMMENT 'percent_change_24h',
-  `percent_change_7d` varchar(40) DEFAULT NULL COMMENT 'percent_change_7d',
+  `cmc_rank` int(11) DEFAULT NULL COMMENT 'rank',
+  `circulating_supply` double  DEFAULT NULL COMMENT 'circulating_supply',
+  `total_supply` double DEFAULT NULL COMMENT 'total_supply',
+  `max_supply` double DEFAULT NULL COMMENT 'max_supply',
+  `price` double DEFAULT NULL COMMENT 'price',
+  `volume_24h` double DEFAULT NULL COMMENT 'volume_24h',
+  `market_cap` double DEFAULT NULL COMMENT 'market_cap',
+  `percent_change_1h` double DEFAULT NULL COMMENT 'percent_change_1h',
+  `percent_change_24h` double DEFAULT NULL COMMENT 'percent_change_24h',
+  `percent_change_7d` double DEFAULT NULL COMMENT 'percent_change_7d',
   `last_updated` bigint(20) DEFAULT NULL COMMENT 'last_updated',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

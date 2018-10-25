@@ -27,7 +27,9 @@ import org.loopring.marketcap.broker.BinanceMarketBroker
 import org.loopring.marketcap.endpoints.RootEndpoints
 import org.loopring.marketcap.socketio.SocketIOServer
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
-import org.loopring.marketcap.crawler.{ TokenIcoCrawlerActor, TokenIcoServiceActor }
+import org.loopring.marketcap.crawler.{ TokenIcoCrawlerActor, TokenIcoServiceActor, TokenTickerCrawlerActor, TokenTickerServiceActor }
+import org.loopring.marketcap.proto.data.TokenTickerInfo
+import scala.collection.mutable
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -39,7 +41,6 @@ object Main extends App {
   implicit val system = ActorSystem("Test", ConfigFactory.load())
   implicit val mat = ActorMaterializer()
   implicit val ec = system.dispatcher
-
   //val binance = system.actorOf(Props(new BinanceMarketBroker()))
   //binance ! ""
 
@@ -49,13 +50,16 @@ object Main extends App {
   system.registerOnTermination(() => session.close())
 
   //crawler token's icoInfo
-  val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
-  val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
+  //val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
+  //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
 
   //query tokenlist
   val tokenInfoDatabaseActor = system.actorOf(Props(new TokenInfoServiceActor()), "token_info")
   //query tokenIcolist
   //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
+
+  val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
+  val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor, system, mat)), "token_ticker_crawler")
 
   // for endpoints
   val root = new RootEndpoints(tokenInfoDatabaseActor)

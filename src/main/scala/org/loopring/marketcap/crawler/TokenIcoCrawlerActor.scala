@@ -17,7 +17,7 @@
 package org.loopring.marketcap.crawler
 
 import akka.actor.{ Actor, ActorRef, Timers }
-import akka.pattern.{ AskTimeoutException, ask }
+import akka.pattern.{ ask }
 import akka.util.Timeout
 import org.jsoup.Jsoup
 import org.loopring.marketcap.proto.data.{ GetTokenListRes, _ }
