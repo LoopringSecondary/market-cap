@@ -16,15 +16,15 @@
 
 package org.loopring.marketcap.broker
 
-import akka.actor.{ Actor, ActorSystem }
+import akka.actor.{Actor, ActorSystem}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
-import akka.stream.ActorMaterializer
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.pattern.pipe
+import akka.stream.ActorMaterializer
 
 import scala.concurrent.Future
 
-class OkexMarketBroker(implicit sys: ActorSystem, mat: ActorMaterializer) extends Actor {
+class OkexMarketActor(implicit sys: ActorSystem, mat: ActorMaterializer) extends Actor {
 
   import sys.dispatcher
 

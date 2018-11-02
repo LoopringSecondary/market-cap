@@ -27,8 +27,9 @@ import org.loopring.marketcap.broker.BinanceMarketBroker
 import org.loopring.marketcap.endpoints.RootEndpoints
 import org.loopring.marketcap.socketio.SocketIOServer
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
-import org.loopring.marketcap.crawler.{ TokenIcoCrawlerActor, TokenIcoServiceActor, TokenTickerCrawlerActor, TokenTickerServiceActor }
+import org.loopring.marketcap.crawler.{ MarketTickerActor, _ }
 import org.loopring.marketcap.proto.data.TokenTickerInfo
+
 import scala.collection.mutable
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -58,8 +59,10 @@ object Main extends App {
   //query tokenIcolist
   //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
 
-  val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
-  val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor, system, mat)), "token_ticker_crawler")
+  //val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
+  //val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor, system, mat)), "token_ticker_crawler")
+
+  val marketTickerActor = system.actorOf(Props(new MarketTickerActor()), "market-ticker")
 
   // for endpoints
   val root = new RootEndpoints(tokenInfoDatabaseActor)

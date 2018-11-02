@@ -43,8 +43,8 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef, implicit val sy
   val convertCurrency = Seq("CNY", "USD", "ETH", "LRC", "USDT", "TUSD")
 
   override def preStart(): Unit = {
-    //daliy schedule token's ico info
-    timers.startSingleTimer("cronSyncTokenTicker", "syncTokenTicker", 30 seconds)
+    //daliy schedule token's ticker info
+    timers.startPeriodicTimer("cronSyncTokenTicker", "syncTokenTicker", 600 seconds)
   }
 
   override def receive: Receive = {
@@ -79,8 +79,6 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef, implicit val sy
             log.error("get ticker data from coinmarketcap failed")
             Future.successful(CMCTickerData())
         }
-
-        // fresp.onFailure()
       }
     }
 

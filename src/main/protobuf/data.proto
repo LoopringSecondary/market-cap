@@ -198,3 +198,17 @@ message TickerDataInfo {
 TickerStatus status = 1;
 repeated CMCTickerData data = 2;
 }
+
+message ExchangeTickerInfo {
+string symbol = 1;
+string market = 2;
+string exchange = 3;
+double price = 4;
+double priceUsd = 5;
+double priceCny = 6;
+double volume24hUsd = 7;
+double volume24hFrom = 8;
+double percentChangeUtc0 = 9;
+string alias = 10;
+int64 timestamp = 11;
+}

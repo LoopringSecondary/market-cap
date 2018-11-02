@@ -53,7 +53,7 @@ trait HttpConnector extends Json4sSupport {
 
   def http(
     host: String,
-    port: Int = 443,
+    port: Int = 80,
     proxy: Option[Boolean] = None)(
     implicit
     system: ActorSystem): Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] = {

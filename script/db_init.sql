@@ -114,4 +114,20 @@ CREATE TABLE `t_token_ticker_info` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `t_exchange_ticker_info`;
+CREATE TABLE `t_exchange_ticker_info` (
+  `symbol` varchar(40) NOT NULL COMMENT 'symbol',
+  `market` varchar(40) NOT NULL COMMENT 'market',
+  `exchange` varchar(60) NOT NULL COMMENT 'exchange',
+  `price` double DEFAULT NULL COMMENT 'price',
+  `price_usd` double DEFAULT NULL COMMENT 'price_usd',
+  `price_cny` double DEFAULT NULL COMMENT 'price_cny',
+  `volume_24h_usd` double DEFAULT NULL COMMENT 'volume_24h_usd',
+  `volume_24h_from` double DEFAULT NULL COMMENT 'volume_24h_from',
+  `percent_change_utc0` double DEFAULT NULL COMMENT 'percent_change_utc0',
+  `alias` varchar(80) DEFAULT NULL COMMENT 'alias',
+  `timestamp` bigint(20) DEFAULT NULL COMMENT 'timestamp',
+  PRIMARY KEY (`exchange`,`market`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 SET FOREIGN_KEY_CHECKS = 1;
