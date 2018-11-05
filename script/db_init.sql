@@ -123,11 +123,12 @@ CREATE TABLE `t_exchange_ticker_info` (
   `price_usd` double DEFAULT NULL COMMENT 'price_usd',
   `price_cny` double DEFAULT NULL COMMENT 'price_cny',
   `volume_24h_usd` double DEFAULT NULL COMMENT 'volume_24h_usd',
+  `volume_24h` double DEFAULT NULL COMMENT 'volume_24h',
   `volume_24h_from` double DEFAULT NULL COMMENT 'volume_24h_from',
   `percent_change_utc0` double DEFAULT NULL COMMENT 'percent_change_utc0',
   `alias` varchar(80) DEFAULT NULL COMMENT 'alias',
-  `timestamp` bigint(20) DEFAULT NULL COMMENT 'timestamp',
-  PRIMARY KEY (`exchange`,`market`)
+  `last_updated` bigint(20) DEFAULT NULL COMMENT 'timestamp',
+  PRIMARY KEY (`exchange`,`symbol`,`market`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;
