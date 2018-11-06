@@ -24,11 +24,11 @@ import akka.stream.ActorMaterializer
 import org.loopring.marketcap.broker.HttpConnector
 import org.loopring.marketcap.proto.data.{ MarketTickData, _ }
 import org.loopring.marketcap.SignatureUtil
-
 import scala.concurrent.Future
+import akka.pattern.{ ask }
 import scala.concurrent.duration._
 
-class MarketTickerCrawlerActor(marketTickerServiceActor: ActorRef, implicit val system: ActorSystem, val mat: ActorMaterializer) extends Actor with HttpConnector with Timers with ActorLogging with SignatureUtil {
+class MarketTickerCrawlerActor(marketTickerServiceActor: ActorRef, tokenInfoServiceActor: ActorRef, implicit val system: ActorSystem, val mat: ActorMaterializer) extends Actor with HttpConnector with Timers with ActorLogging with SignatureUtil {
 
   implicit val timeout = Timeout(5 seconds)
   implicit val _mat = mat
@@ -44,49 +44,64 @@ class MarketTickerCrawlerActor(marketTickerServiceActor: ActorRef, implicit val 
 
   override def receive: Receive = {
     case s: String ⇒
-      // todo load AllTokenMarket
-      val timestamp = System.currentTimeMillis() / 1000
-      val symbol = "lrc";
-      val name_id = "loopring"
-      val anchor = "eth"
-      val sighTemp = "anchor=" + anchor + "&app_id=" + appId + "&name_id=" + name_id + "&symbol=" + symbol + "&timestamp=" + timestamp
-      val signValue = bytesToHex(getHmacSHA256(appSecret, sighTemp + "&app_secret=" + appSecret)).toUpperCase()
-      val uri = "/ticker/paironmarket?" + sighTemp + "&sign=" + signValue
-
-      get(HttpRequest(uri = uri, method = HttpMethods.GET)) {
-        case r if r.status.isSuccess() =>
-          r.to[String].map {
-            dataInfoStr =>
-              println(dataInfoStr)
-              val p = new Parser(preservingProtoFieldNames = true) //protobuf 序列化为json不使用驼峰命名
-              val marketTickData = p.fromJsonString[MarketTickData](dataInfoStr)
-              val lastUpdated = marketTickData.timestamp
-              marketTickData.data.foreach {
-                pairdata =>
-                  pairdata.marketList.foreach {
-                    ticker =>
-                      val symbol = ticker.symbol
-                      val market = ticker.anchor
-                      val exchange = ticker.marketName
-                      val price = ticker.price.toDouble
-                      val priceUsd = ticker.priceUsd.toDouble
-                      val priceCny = ticker.priceCny.toDouble
-                      val volume24hUsd = ticker.volume24HUsd.toDouble
-                      val volume24hFrom = ticker.volume24HFrom.toDouble
-                      val volume24h = ticker.volume24H.toDouble
-                      val percentChangeUtc0 = ticker.percentChangeUtc0.toDouble
-                      val alias = ticker.alias
-                      val exchangeTickerInfo = ExchangeTickerInfo(symbol, market, exchange, price, priceUsd, priceCny,
-                        volume24hUsd, volume24hFrom, volume24h, percentChangeUtc0, alias, lastUpdated)
-                      marketTickerServiceActor ! exchangeTickerInfo
-                  }
-              }
-          }
+      //load AllTokens
+      val f = (tokenInfoServiceActor ? GetTokenListReq()).mapTo[GetTokenListRes]
+      f.foreach {
+        _.list.foreach { tokenInfo ⇒
+          crawlMarketPairTicker(tokenInfo)
+          Thread.sleep(50)
+        }
       }
+  }
 
-    case _ =>
-      log.error("get ticker data from my-token failed")
-      Future.successful(ExchangeTickerInfo())
+  private def crawlMarketPairTicker(tokenInfo: TokenInfo): Unit = {
+    var name_id = tokenInfo.source
+    var symbol = tokenInfo.symbol
+    var anchor = "eth"
+    if (symbol == "ETH" || symbol == "WETH") {
+      name_id = "ethereum"
+      symbol = "eth"
+      anchor = "usd"
+    }
+    val timestamp = System.currentTimeMillis() / 1000
+    val sighTemp = "anchor=" + anchor + "&app_id=" + appId + "&name_id=" + name_id + "&symbol=" + symbol.toLowerCase() + "&timestamp=" + timestamp
+    val signValue = bytesToHex(getHmacSHA256(appSecret, sighTemp + "&app_secret=" + appSecret)).toUpperCase()
+    val uri = "/ticker/paironmarket?" + sighTemp + "&sign=" + signValue
+
+    get(HttpRequest(uri = uri, method = HttpMethods.GET)) {
+      case r if r.status.isSuccess() =>
+        r.to[String].map {
+          dataInfoStr =>
+            val p = new Parser(preservingProtoFieldNames = true) //protobuf 序列化为json不使用驼峰命名
+            val marketTickData = p.fromJsonString[MarketTickData](dataInfoStr)
+            val lastUpdated = marketTickData.timestamp
+            marketTickData.data.foreach {
+              pairdata =>
+                pairdata.marketList.foreach {
+                  ticker =>
+                    val symbol = ticker.symbol
+                    val market = ticker.anchor
+                    val exchange = ticker.marketName
+                    val price = ticker.price.toDouble
+                    val priceUsd = ticker.priceUsd.toDouble
+                    val priceCny = ticker.priceCny.toDouble
+                    val volume24hUsd = ticker.volume24HUsd.toDouble
+                    val volume24hFrom = ticker.volume24HFrom.toDouble
+                    val volume24h = ticker.volume24H.toDouble
+                    val percentChangeUtc0 = ticker.percentChangeUtc0.toDouble
+                    val alias = ticker.alias
+                    val exchangeTickerInfo = ExchangeTickerInfo(symbol, market, exchange, price, priceUsd, priceCny,
+                      volume24hUsd, volume24hFrom, volume24h, percentChangeUtc0, alias, lastUpdated)
+                    marketTickerServiceActor ! exchangeTickerInfo
+                }
+            }
+        }
+
+      case _ =>
+        log.error("get ticker data from my-token failed")
+        Future.successful(ExchangeTickerInfo())
+    }
+
   }
 
 }
