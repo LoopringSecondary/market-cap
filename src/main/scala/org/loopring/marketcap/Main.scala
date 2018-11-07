@@ -23,12 +23,11 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.slick.scaladsl.SlickSession
 import com.typesafe.config.ConfigFactory
-import org.loopring.marketcap.broker.BinanceMarketBroker
 import org.loopring.marketcap.endpoints.RootEndpoints
 import org.loopring.marketcap.socketio.SocketIOServer
-import org.loopring.marketcap.tokens.TokenInfoServiceActor
 import org.loopring.marketcap.crawler.{ MarketTickerCrawlerActor, MarketTickerServiceActor, _ }
 import org.loopring.marketcap.proto.data.TokenTickerInfo
+import org.loopring.marketcap.tokens.TokenInfoServiceActor
 
 import scala.collection.mutable
 import slick.basic.DatabaseConfig
@@ -42,8 +41,6 @@ object Main extends App {
   implicit val system = ActorSystem("Test", ConfigFactory.load())
   implicit val mat = ActorMaterializer()
   implicit val ec = system.dispatcher
-  //val binance = system.actorOf(Props(new BinanceMarketBroker()))
-  //binance ! ""
 
   //for db
   val databaseConfig = DatabaseConfig.forConfig[JdbcProfile]("slick-mysql", system.settings.config)

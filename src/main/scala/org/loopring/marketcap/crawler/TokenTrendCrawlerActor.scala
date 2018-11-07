@@ -79,7 +79,7 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef, implicit val syste
             dataInfo.data.foreach {
               trendData =>
                 println(Json(DefaultFormats).write(trendData.trend))
-                // todo set in redis
+              // todo set in redis
             }
         }
 
