@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package org.loopring.marketcap
+package org.loopring.marketcap.cache
 
 import akka.actor.ActorSystem
 import akka.util.ByteString
-import redis.{ ByteStringDeserializer, ByteStringSerializer, RedisCluster }
+import org.loopring.marketcap.ProtoBuf
+import redis.{ ByteStringDeserializer, ByteStringSerializer }
 
 import scala.concurrent.Future
 
 class ProtoBufMessageCacher[T <: ProtoBuf[T]](
   implicit
-  redis: RedisCluster,
+  settings: CacherSettings,
   system: ActorSystem,
   c: scalapb.GeneratedMessageCompanion[T]) {
 
   implicit val ec = system.dispatcher
 
-  private[this] implicit val deserializer = new ProtoBufByteStringDeserializer[T]
+  val redis = settings.redisClient
 
-  private[this] implicit val serializer = new ProtoBufByteStringSerializer[T]
+  private[cache] implicit val deserializer = new ProtoBufByteStringDeserializer[T]
+
+  private[cache] implicit val serializer = new ProtoBufByteStringSerializer[T]
 
   def get(k: String): Future[Option[T]] = redis.get(k)
 
@@ -40,15 +43,14 @@ class ProtoBufMessageCacher[T <: ProtoBuf[T]](
 
     for {
       tOption ← redis.get(k)
-      fallbackOption ← if (tOption.isEmpty) fallback else Future.successful(tOption)
-      _ ← if (fallbackOption.isDefined) redis.set(k, fallbackOption.get, exSeconds = ttl) else Future.unit
+      tMissed = tOption.isEmpty
+      fallbackOption ← if (tMissed) fallback else Future.successful(tOption)
+      _ ← if (tMissed && fallbackOption.isDefined) put(k, fallbackOption.get, ttl) else Future.unit
     } yield fallbackOption
 
   }
 
-  def put(k: String, v: T): Future[Boolean] = redis.set(k, v)
-
-  def put(k: String, v: T, ttl: Long): Future[Boolean] = redis.set(k, v, exSeconds = Some(ttl))
+  def put(k: String, v: T, ttl: Option[Long] = None): Future[Boolean] = redis.set(k, v, exSeconds = ttl)
 
   def push(k: String, vs: Seq[T]): Future[Long] =
     redis.lpush(k, vs.map(serializer.serialize): _*)
