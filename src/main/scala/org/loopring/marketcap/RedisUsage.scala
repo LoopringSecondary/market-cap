@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package org.loopring.marketcap
 
 import akka.actor.ActorSystem
@@ -43,7 +44,6 @@ object RedisUsage extends App {
     case scala.util.Failure(ex) ⇒ ex.printStackTrace()
   }
 
-
   // 先从redis获取数据, 找不到数据自动调用fallback函数, 并将结果保存到redis
   val dd = tokenVolumeCacher.getOrElse("haha2") {
     Future.successful(Some(TokenVolume(11, "dududu2")))
@@ -55,3 +55,4 @@ object RedisUsage extends App {
   }
 
 }
+*/ 
