@@ -239,3 +239,18 @@ int64 timestamp = 3;
 PairData data = 4;
 }
 
+message TokenTrendData {
+int32 code = 1;
+string message = 2;
+TrendData data = 3;
+}
+
+message TrendData {
+repeated Trend trend = 1;
+}
+
+message Trend {
+int64 time = 1;
+string price = 2;
+double volume_to = 3;
+}

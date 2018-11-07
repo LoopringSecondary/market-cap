@@ -61,9 +61,10 @@ object Main extends App {
 
   //val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
   //val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor, system, mat)), "token_ticker_crawler")
-  val marketTickerServiceActor = system.actorOf(Props(new MarketTickerServiceActor()), "market-ticker-service")
-  val marketTickerActor = system.actorOf(Props(new MarketTickerCrawlerActor(marketTickerServiceActor, tokenInfoDatabaseActor, system, mat)), "market-ticker")
+  //val marketTickerServiceActor = system.actorOf(Props(new MarketTickerServiceActor()), "market-ticker-service")
+  //val marketTickerActor = system.actorOf(Props(new MarketTickerCrawlerActor(marketTickerServiceActor, tokenInfoDatabaseActor, system, mat)), "market-ticker")
 
+  val tokenTrendCrawlerActor = system.actorOf(Props(new TokenTrendCrawlerActor(tokenInfoDatabaseActor, system, mat)), "token_trend")
   // for endpoints
   val root: RootEndpoints = new RootEndpoints(tokenInfoDatabaseActor)
   val bind = Http().bindAndHandle(root(), interface = "0.0.0.0", port = 9000)
