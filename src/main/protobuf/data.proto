@@ -6,24 +6,6 @@ package org.loopring.marketcap.proto;
 
 import "google/protobuf/wrappers.proto";
 
-enum Intervals {
-    D1 = 0;
-    D7 = 1;
-    M1 = 2;
-    M3 = 3;
-    Y1 = 4;
-    YTD = 5; // year to date
-    ALL = 6;
-}
-
-message BinanceTokenTicker {
-    string symbol = 1;
-    string price_change = 2;
-    string price_change_percent = 3;
-    string weighted_avg_price = 4;
-    string prev_close_price = 5;
-}
-
 //////////////////////
 //  for common use
 /////////////////////
@@ -47,7 +29,6 @@ message TokenIcoInfo {
     string country = 8;
 }
 
-
 message GetTokenTickerReq {
     google.protobuf.StringValue symbol = 1;
 }
@@ -55,7 +36,6 @@ message GetTokenTickerReq {
 message GetTokenTickerRes {
     string symbol = 1;
 }
-
 
 // for token list
 message GetTokenListReq {
@@ -68,78 +48,12 @@ message GetTokenListRes {
     repeated TokenInfo list = 1;
 }
 
-// 折线图
-// for http request
-message GetTokenMarketCapReq {
-    string symbol = 1;
-    Intervals intervals = 2;
-    google.protobuf.Int32Value start_time = 3; // optional
-    google.protobuf.Int32Value end_time = 4; // optional
-    google.protobuf.Int32Value limit = 5; // optional
-}
-
-message TokenVolume {
-    int32 timestamp = 1;
-    string price = 2;
-}
-
-// for http/websocket response
-message GetTokenMarketCapRes {
-    repeated TokenVolume market_cap = 1; // 市值
-    repeated TokenVolume price_btc = 2; // btc价格
-    repeated TokenVolume price_usd = 3; // usd价格
-    repeated TokenVolume price_eth = 4; // eth价格
-    repeated TokenVolume volume_usd = 5; // 24小时交易(usd)
-}
-
-// 24h 交易数据
-message GetTokenMarketVolumeReq {
-    string symbol = 1;
-}
-
-//
-message GetTokenMarketVolumeRes {
-    string market_cap = 1; // 市值
-    string price_btc = 2; // btc价格
-    string price_usd = 3; // usd价格
-    string price_eth = 4; // eth价格
-    string volume_usd = 5; // 24小时交易(usd)
-
-}
-
 message GetTokenIcoInfoReq {
     google.protobuf.StringValue tokenAddress = 1;
 }
 
 message GetTokenIcoInfoRes {
     repeated TokenIcoInfo list = 1;
-}
-
-// for kline
-
-message GetTokenKlineReq {
-    string symbol = 1;
-    Intervals intervals = 2;
-    google.protobuf.Int32Value start_time = 3; // optional
-    google.protobuf.Int32Value end_time = 4; // optional
-    google.protobuf.Int32Value limit = 5; // optional
-}
-
-message TokenKline {
-    string open_time = 1; // open time
-    string close_time = 2;
-    string price_open = 3;
-    string price_high = 4;
-    string price_low = 5;
-    string price_close = 6;
-    string volume_base = 7;
-    string volume_quote = 8;
-    string toker_base = 9;
-    string toker_quote = 10;
-}
-
-message GetTokenKlineRes {
-    repeated TokenKline klines = 1;
 }
 
 message TokenTickerInfo {
