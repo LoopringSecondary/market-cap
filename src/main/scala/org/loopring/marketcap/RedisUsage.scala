@@ -18,10 +18,8 @@ package org.loopring.marketcap
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import org.loopring.marketcap.cache.{ CacherSettings, ProtoBufMessageCacher }
-import org.loopring.marketcap.proto.data.TokenVolume
-
-import scala.concurrent.Future
+import org.loopring.marketcap.cache.CacherSettings
+//import org.loopring.marketcap.proto.data._
 
 object RedisUsage extends App {
 
@@ -35,23 +33,23 @@ object RedisUsage extends App {
   implicit val ex = system.dispatcher
 
   // 每个Message创建一个 ProtoBufMessageCacher[T]
-  val tokenVolumeCacher = new ProtoBufMessageCacher[TokenVolume]
-
-  val qq: Future[Boolean] = tokenVolumeCacher.put("haha1", TokenVolume(10, "dududu1"))
-  qq.onComplete {
-    case scala.util.Success(value) ⇒ println(value)
-    case scala.util.Failure(ex) ⇒ ex.printStackTrace()
-  }
-
-
-  // 先从redis获取数据, 找不到数据自动调用fallback函数, 并将结果保存到redis
-  val dd = tokenVolumeCacher.getOrElse("haha2") {
-    Future.successful(Some(TokenVolume(11, "dududu2")))
-  }
-
-  dd.onComplete {
-    case scala.util.Success(Some(x)) ⇒ println(x)
-    case scala.util.Failure(ex) ⇒ ex.printStackTrace()
-  }
+  //  val tokenVolumeCacher = new ProtoBufMessageCacher[TokenVolume]
+  //
+  //  val qq: Future[Boolean] = tokenVolumeCacher.put("haha1", TokenVolume(10, "dududu1"))
+  //  qq.onComplete {
+  //    case scala.util.Success(value) ⇒ println(value)
+  //    case scala.util.Failure(ex) ⇒ ex.printStackTrace()
+  //  }
+  //
+  //
+  //  // 先从redis获取数据, 找不到数据自动调用fallback函数, 并将结果保存到redis
+  //  val dd = tokenVolumeCacher.getOrElse("haha2") {
+  //    Future.successful(Some(TokenVolume(11, "dududu2")))
+  //  }
+  //
+  //  dd.onComplete {
+  //    case scala.util.Success(Some(x)) ⇒ println(x)
+  //    case scala.util.Failure(ex) ⇒ ex.printStackTrace()
+  //  }
 
 }
