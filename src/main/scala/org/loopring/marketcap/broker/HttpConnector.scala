@@ -76,7 +76,7 @@ trait HttpConnector extends Json4sSupport {
 
   def get[T](uri: String)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
     val fallbackFuture = (r: Future[HttpResponse]) ⇒ r.flatMap(fallback)
-    (dispatcher andThen fallbackFuture)(Get(uri))
+    (dispatcher andThen fallbackFuture) (Get(uri))
   }
 
   def get[T](httpRequest: HttpRequest)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
