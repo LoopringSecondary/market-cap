@@ -15,6 +15,7 @@
  */
 
 package org.loopring.marketcap.crawler
+
 import akka.actor.{ Actor, ActorSystem }
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.slick.scaladsl.SlickSession
@@ -26,6 +27,7 @@ class TokenTickerServiceActor(implicit
   system: ActorSystem,
   mat: ActorMaterializer,
   session: SlickSession) extends DatabaseAccesser with Actor {
+
   import session.profile.api._
 
   implicit val saveTokenTickerInfo = (info: TokenTickerInfo) ⇒

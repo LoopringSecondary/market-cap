@@ -23,6 +23,7 @@ import org.jsoup.Jsoup
 import org.loopring.marketcap.proto.data.{ GetTokenListRes, _ }
 
 import scala.concurrent.duration._
+
 class TokenIcoCrawlerActor(
   tokenIcoServiceActor: ActorRef, // TokenIcoServiceActor
   tokenInfoServiceActor: ActorRef // TokenInfoServiceActor
@@ -51,7 +52,7 @@ class TokenIcoCrawlerActor(
   private def crawlTokenIcoInfo(tokenAddress: String): Unit = {
     import collection.JavaConverters._
 
-    val doc = get("https://etherscan.io/token/" + tokenAddress + "#tokenInfo")
+    val doc = get(s"https://etherscan.io/token/$tokenAddress#tokenInfo")
     val trs = doc.getElementsByTag("tr").asScala
 
     val tdsMap = trs.filter(_.childNodeSize() == 7).map { tr ⇒

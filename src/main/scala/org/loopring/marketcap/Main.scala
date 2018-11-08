@@ -16,20 +16,14 @@
 
 package org.loopring.marketcap
 
-import java.text.SimpleDateFormat
-
 import akka.actor.{ ActorSystem, Props }
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.slick.scaladsl.SlickSession
 import com.typesafe.config.ConfigFactory
+import org.loopring.marketcap.crawler._
 import org.loopring.marketcap.endpoints.RootEndpoints
-import org.loopring.marketcap.socketio.SocketIOServer
-import org.loopring.marketcap.crawler.{ MarketTickerCrawlerActor, MarketTickerServiceActor, _ }
-import org.loopring.marketcap.proto.data.TokenTickerInfo
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
-
-import scala.collection.mutable
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -61,7 +55,7 @@ object Main extends App {
   //val marketTickerServiceActor = system.actorOf(Props(new MarketTickerServiceActor()), "market-ticker-service")
   //val marketTickerActor = system.actorOf(Props(new MarketTickerCrawlerActor(marketTickerServiceActor, tokenInfoDatabaseActor, system, mat)), "market-ticker")
 
-  val tokenTrendCrawlerActor = system.actorOf(Props(new TokenTrendCrawlerActor(tokenInfoDatabaseActor, system, mat)), "token_trend")
+  val tokenTrendCrawlerActor = system.actorOf(Props(new TokenTrendCrawlerActor(tokenInfoDatabaseActor)), "token_trend")
   // for endpoints
   val root: RootEndpoints = new RootEndpoints(tokenInfoDatabaseActor)
   val bind = Http().bindAndHandle(root(), interface = "0.0.0.0", port = 9000)
@@ -72,7 +66,5 @@ object Main extends App {
     case Failure(ex) ⇒ ex.printStackTrace()
   }
   bind.failed.foreach(_.printStackTrace())
-
-  new SocketIOServer
 
 }

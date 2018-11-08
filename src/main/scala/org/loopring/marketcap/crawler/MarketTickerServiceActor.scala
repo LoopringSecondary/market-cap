@@ -29,7 +29,6 @@ class MarketTickerServiceActor(
   session: SlickSession) extends DatabaseAccesser with Actor {
 
   import session.profile.api._
-  import system.dispatcher
 
   override def receive: Receive = {
     case info: ExchangeTickerInfo ⇒
