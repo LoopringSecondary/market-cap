@@ -74,6 +74,10 @@ message GetExchangeTickerInfoRes {
    repeated ExchangeTickerInfo list = 1;
 }
 
+message GetTokenTrendDataReq{
+  google.protobuf.StringValue symbol = 1;
+  google.protobuf.StringValue period = 2;
+}
 
 message TokenTickerInfo {
      int32 tokenId = 1;

@@ -92,8 +92,9 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
           dataInfo.data.foreach {
             trendData =>
               //set in redis cache
-              cacherTokenTrend.push(buildCacheKey(symbol, trend_anchor, period), trendData.trend)
+              cacherTokenTrend.push(buildCacheKey(symbol, period), trendData.trend)
             //println(Json(DefaultFormats).write(trendData.trend))
+
           }
         }
 
@@ -104,8 +105,8 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
 
   }
 
-  def buildCacheKey(symbol: String, anchor: String, period: String) = {
-    s"trendKey${symbol}_${anchor.toUpperCase()}_${period.toUpperCase()}"
+  def buildCacheKey(symbol: String, period: String) = {
+    s"$trendKey${symbol}_${period.toUpperCase()}"
   }
 
 }

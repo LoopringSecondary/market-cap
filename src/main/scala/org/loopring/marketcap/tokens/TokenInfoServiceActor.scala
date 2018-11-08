@@ -42,13 +42,13 @@ class TokenInfoServiceActor(
     TokenInfo(protocol = r <<, deny = r <<, isMarket = r <<, symbol = r <<, source = r <<, decimals = r <<)
 
   val cacherTokenInfo = new ProtoBufMessageCacher[GetTokenListRes]
-  val tokenInfoKey = "TOKEN_INFO_LIST"
+  val tokenInfoKey = "TOKEN_INFO_KEY"
 
   override def receive: Receive = {
 
     case req: GetTokenListReq ⇒
-
-      val res = cacherTokenInfo.getOrElse(tokenInfoKey) {
+      //优先查询缓存，缓存没有再查询数据表并存入缓存
+      val res = cacherTokenInfo.getOrElse(tokenInfoKey, Some(600)) {
         val resp: Future[GetTokenListRes] =
           sql"""select protocol,deny,is_market,symbol,source,decimals
               from t_token_info

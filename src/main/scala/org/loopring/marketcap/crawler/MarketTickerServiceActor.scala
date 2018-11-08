@@ -21,8 +21,10 @@ import akka.stream.ActorMaterializer
 import akka.stream.alpakka.slick.scaladsl.SlickSession
 import org.loopring.marketcap.DatabaseAccesser
 import org.loopring.marketcap.proto.data._
+
 import scala.concurrent.Future
 import akka.pattern.pipe
+import org.loopring.marketcap.cache.{ CacherSettings, ProtoBufMessageCacher }
 
 class MarketTickerServiceActor(
   implicit
@@ -32,6 +34,8 @@ class MarketTickerServiceActor(
 
   import session.profile.api._
   import system.dispatcher
+
+  implicit val settings = CacherSettings(system.settings.config)
 
   implicit val saveExchangeTickerInfo = (info: ExchangeTickerInfo) ⇒
     sqlu"""INSERT INTO t_exchange_ticker_info(symbol, market,
@@ -46,16 +50,19 @@ class MarketTickerServiceActor(
       price = r <<, priceUsd = r <<, priceCny = r <<, volume24HUsd = r <<,
       volume24HFrom = r <<, volume24H = r <<, percentChangeUtc0 = r <<, alias = r <<, lastUpdated = r <<)
 
+  val cacherExchangeTickerInfo = new ProtoBufMessageCacher[GetExchangeTickerInfoRes]
+  val exchangeTickerInfoKey = "EXCHANGE_TICKER_INFO_KEY"
+
   override def receive: Receive = {
     case info: ExchangeTickerInfo ⇒
 
       saveOrUpdate(info)
 
     case req: GetExchangeTickerInfoReq ⇒
-
-      // TODO 这里可能来自数据库或者cache
-      val res: Future[GetExchangeTickerInfoRes] =
-        sql"""select
+      //优先查询缓存，缓存没有再查询数据表并存入缓存
+      val res = cacherExchangeTickerInfo.getOrElse(exchangeTickerInfoKey, Some(600)) {
+        val resp: Future[GetExchangeTickerInfoRes] =
+          sql"""select
               symbol,
               market,
               exchange,
@@ -72,9 +79,15 @@ class MarketTickerServiceActor(
              where symbol = ${req.symbol}
              and market = ${req.market}
           """
-          .list[ExchangeTickerInfo].map(GetExchangeTickerInfoRes(_))
+            .list[ExchangeTickerInfo].map(GetExchangeTickerInfoRes(_))
+        resp.map(Some(_))
+      }
 
-      res pipeTo sender
+      res.map {
+        case Some(r) => r
+        case _ => throw new Exception("data in table is null. Please find the reason!")
+      } pipeTo sender
+
   }
 
 }
