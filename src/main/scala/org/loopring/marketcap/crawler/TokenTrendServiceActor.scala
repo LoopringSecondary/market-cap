@@ -39,7 +39,7 @@ class TokenTrendServiceActor(implicit
   override def receive: Receive = {
 
     case req: GetTokenTrendDataReq ⇒
-      //这里只查询缓存，缓存没有再查询数据表并存入缓存
+      //这里只需查询缓存
       cacherTokenTrendData.pull(buildCacheKey(req.symbol.getOrElse(""), req.period.getOrElse(""))).foreach {
         trendData => Future(trendData) pipeTo sender
       }
