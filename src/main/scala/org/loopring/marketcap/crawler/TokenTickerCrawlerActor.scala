@@ -18,15 +18,15 @@ package org.loopring.marketcap.crawler
 
 import java.text.SimpleDateFormat
 
-import scalapb.json4s.{ Parser, Printer }
 import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Timers }
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{ HttpMethods, HttpRequest, HttpResponse, StatusCodes }
-import akka.util.Timeout
-import akka.http.scaladsl.model.headers.{ ModeledCustomHeader, ModeledCustomHeaderCompanion, RawHeader }
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
+import org.loopring.marketcap.SeqTpro
 import org.loopring.marketcap.broker.HttpConnector
 import org.loopring.marketcap.proto.data._
-import org.loopring.marketcap.SeqTpro
+import scalapb.json4s.Parser
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -45,9 +45,7 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
   val limitSize = config.getString("cmc-config.limitSize").toInt
   val pageCount = config.getString("cmc-config.pageCount").toInt
   val appKey = config.getString("cmc-config.api_key")
-  // val RawHeader = ApiKeyHeader(appKey)
 
-  // TODO(michelle) header 这么用好像也可以
   val rawHeader = RawHeader(config.getString("cmc-config.header"), appKey)
   val convertCurrency = Seq("CNY", "USD", "ETH", "LRC", "USDT", "TUSD")
 
@@ -63,7 +61,6 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
       convertCurrency.foreach {
         currency =>
           getReq(currency)
-          // TODO(michelle) 这里的时间也做配置吧
           Thread.sleep(50)
       }
 
@@ -75,7 +72,7 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
 
       val uri = s"/v1/cryptocurrency/listings/latest?start=${i * limitSize + 1}&limit=${limitSize}&convert=${currency}"
 
-      get(HttpRequest(uri = uri, method = HttpMethods.GET).withHeaders()) {
+      get(HttpRequest(uri = uri, method = HttpMethods.GET).withHeaders(rawHeader)) {
         case HttpResponse(StatusCodes.OK, _, entity, _) =>
 
           entity.dataBytes.map(_.utf8String).runReduce(_ + _).map { dataInfoStr ⇒
@@ -93,22 +90,6 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
       }
     }
   }
-
-  //  final class ApiKeyHeader(key: String) extends ModeledCustomHeader[ApiKeyHeader] {
-  //    override def renderInRequests = true
-  //
-  //    override def renderInResponses = true
-  //
-  //    override val companion = ApiKeyHeader
-  //
-  //    override def value: String = key
-  //  }
-  //
-  //  object ApiKeyHeader extends ModeledCustomHeaderCompanion[ApiKeyHeader] {
-  //    override val name = system.settings.config.getString("cmc-config.header")
-  //
-  //    override def parse(value: String) = Try(new ApiKeyHeader(value))
-  //  }
 
   def convertTO(tickers: Seq[CMCTickerData], currency: String): SeqTpro[TokenTickerInfo] = {
 

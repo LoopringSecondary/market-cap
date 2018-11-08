@@ -38,7 +38,6 @@ class MarketTickerCrawlerActor(
   val mat: ActorMaterializer) extends Actor with HttpConnector with Timers with ActorLogging with SignatureUtil {
 
   implicit val timeout = Timeout(5 seconds)
-  // implicit val _mat = mat
 
   val appId = system.settings.config.getString("my_token.app_id")
   val connection = http(system.settings.config.getString("my_token.host_url"))
@@ -58,7 +57,6 @@ class MarketTickerCrawlerActor(
       f.foreach {
         _.list.foreach { tokenInfo ⇒
           crawlMarketPairTicker(tokenInfo)
-          // TODO(michelle) 这个定时放到配置里面吧
           Thread.sleep(50)
         }
       }
@@ -91,8 +89,6 @@ class MarketTickerCrawlerActor(
                 volume24hUsd, volume24h, volume24hFrom,
                 percentChangeUtc0, alias) ⇒
 
-                // TODO(michelle) 这里的 toDouble 字段 是不是 要特殊 处理一下
-                // 下面我做了一个 toDouble 的方法, 可以参考使用
                 marketTickerServiceActor ! ExchangeTickerInfo(symbol, market, exchange,
                   price.toDouble, priceUsd.toDouble, priceCny.toDouble,
                   volume24hUsd.toDouble, volume24hFrom.toDouble, volume24h.toDouble,
@@ -108,6 +104,7 @@ class MarketTickerCrawlerActor(
 
   }
 
+  //todo 后续看是否需要特殊处理double类型的字段
   def toDouble: PartialFunction[String, Double] = {
     case s: String ⇒ scala.util.Try(s.toDouble).toOption.getOrElse(0)
   }

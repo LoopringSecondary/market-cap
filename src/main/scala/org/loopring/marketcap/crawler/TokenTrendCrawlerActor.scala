@@ -42,11 +42,15 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
   val appId = system.settings.config.getString("my_token.app_id")
   val connection = http(system.settings.config.getString("my_token.host_url"))
   val appSecret = system.settings.config.getString("my_token.app_secret")
+  val limitSize = system.settings.config.getString("my_token.limit_size")
+  val period = system.settings.config.getString("my_token.period")
+  val trend_anchor = system.settings.config.getString("my_token.trend_anchor")
+
   val trendKey = "TOKEN_TREND_"
 
   val parser = new Parser(preservingProtoFieldNames = true) //protobuf 序列化为json不使用驼峰命名
 
-  val cacher4TokenTrend = new ProtoBufMessageCacher[Trend]
+  val cacherTokenTrend = new ProtoBufMessageCacher[Trend]
 
   override def preStart(): Unit = {
     //daliy schedule market's ticker info
@@ -60,7 +64,6 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
       f.foreach {
         _.list.foreach { tokenInfo ⇒
           crawlTokenTrendData(tokenInfo)
-          // TODO(michelle) 这里的时间也做配置吧
           Thread.sleep(50)
         }
       }
@@ -69,20 +72,16 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
   private def crawlTokenTrendData(tokenInfo: TokenInfo): Unit = {
     // var name_id = tokenInfo.source
     val symbol = tokenInfo.symbol
+
     val name_id = if (symbol == "ETH" || symbol == "WETH") "ethereum" else tokenInfo.source
 
-
-    // TODO(michelle) 下面这段常量有需要配置的吧
-    // =========================== start
-    val period = "1d"
     val timestamp = System.currentTimeMillis() / 1000
-    //modify wait for my-token's new version ; trend_anchor="usd,cny,eth,btc",also require modify redis's struct
-    val trend_anchor = "usd"
-    val limit = 180
-    // =========================== end
 
-    val sighTemp = s"app_id=$appId&limit=$limit&name_id=$name_id&period=$period&timestamp=$timestamp&trend_anchor=$trend_anchor"
+    // todo modify wait for my-token's new version ; trend_anchor="usd,cny,eth,btc",also require modify redis's struct
+    val sighTemp = s"app_id=$appId&limit=$limitSize&name_id=$name_id&period=$period&timestamp=$timestamp&trend_anchor=$trend_anchor"
+
     val signValue = bytesToHex(getHmacSHA256(appSecret, s"$sighTemp&app_secret=$appSecret")).toUpperCase()
+
     val uri = s"/symbol/trend?$sighTemp&sign=$signValue"
 
     get(HttpRequest(uri = uri, method = HttpMethods.GET)) {
@@ -93,7 +92,7 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
           dataInfo.data.foreach {
             trendData =>
               //set in redis cache
-              cacher4TokenTrend.push(buildCacheKey(symbol, trend_anchor, period), trendData.trend)
+              cacherTokenTrend.push(buildCacheKey(symbol, trend_anchor, period), trendData.trend)
             //println(Json(DefaultFormats).write(trendData.trend))
           }
         }

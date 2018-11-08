@@ -56,6 +56,25 @@ message GetTokenIcoInfoRes {
     repeated TokenIcoInfo list = 1;
 }
 
+message GetTokenTickerInfoReq{
+   google.protobuf.StringValue symbol = 1;
+   google.protobuf.StringValue market = 2;
+}
+
+message GetTokenTickerInfoRes {
+   repeated TokenTickerInfo list = 1;
+}
+
+message GetExchangeTickerInfoReq{
+   google.protobuf.StringValue symbol = 1;
+   google.protobuf.StringValue market = 2;
+}
+
+message GetExchangeTickerInfoRes {
+   repeated ExchangeTickerInfo list = 1;
+}
+
+
 message TokenTickerInfo {
      int32 tokenId = 1;
     string name = 2;

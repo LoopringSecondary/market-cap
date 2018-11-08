@@ -23,7 +23,7 @@ import akka.pattern.pipe
 import com.typesafe.scalalogging.LazyLogging
 import org.loopring.marketcap.DatabaseAccesser
 import org.loopring.marketcap.proto.data._
-
+import org.loopring.marketcap.cache.{ CacherSettings, ProtoBufMessageCacher }
 import scala.concurrent.Future
 
 class TokenInfoServiceActor(
@@ -36,20 +36,33 @@ class TokenInfoServiceActor(
   import system.dispatcher
   import session.profile.api._
 
+  implicit val settings = CacherSettings(system.settings.config)
+
+  implicit val toTokenInfo = (r: ResultRow) ⇒
+    TokenInfo(protocol = r <<, deny = r <<, isMarket = r <<, symbol = r <<, source = r <<, decimals = r <<)
+
+  val cacherTokenInfo = new ProtoBufMessageCacher[GetTokenListRes]
+  val tokenInfoKey = "TOKEN_INFO_LIST"
+
   override def receive: Receive = {
-    case req: GetTokenListReq ⇒
 
-      // TODO(Toan) 这里可能来自数据库或者cache
-      implicit val toTokenInfo = (r: ResultRow) ⇒
-        TokenInfo(protocol = r <<, deny = r <<, isMarket = r <<, symbol = r <<, source = r <<, decimals = r <<)
+  case req: GetTokenListReq ⇒
 
-      val res: Future[GetTokenListRes] =
-        sql"""select protocol,deny,is_market,symbol,source,decimals
+      val res = cacherTokenInfo.getOrElse(tokenInfoKey) {
+        val resp: Future[GetTokenListRes] =
+          sql"""select protocol,deny,is_market,symbol,source,decimals
               from t_token_info
               where symbol like concat('%', ${req.symbol.getOrElse("")}, '%')
           """.list[TokenInfo].map(GetTokenListRes(_))
 
-      res pipeTo sender
+        resp.map(Some(_))
+      }
+
+      res.map {
+        case Some(r) => Future(r) pipeTo sender
+        case _ => throw new Exception("data in table is null. Please find the reason!")
+      }
+
   }
 
 }
