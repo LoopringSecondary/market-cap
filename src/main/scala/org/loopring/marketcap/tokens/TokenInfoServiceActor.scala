@@ -46,7 +46,7 @@ class TokenInfoServiceActor(
 
   override def receive: Receive = {
 
-  case req: GetTokenListReq ⇒
+    case req: GetTokenListReq ⇒
 
       val res = cacherTokenInfo.getOrElse(tokenInfoKey) {
         val resp: Future[GetTokenListRes] =
@@ -59,9 +59,9 @@ class TokenInfoServiceActor(
       }
 
       res.map {
-        case Some(r) => Future(r) pipeTo sender
+        case Some(r) => r
         case _ => throw new Exception("data in table is null. Please find the reason!")
-      }
+      } pipeTo sender
 
   }
 
