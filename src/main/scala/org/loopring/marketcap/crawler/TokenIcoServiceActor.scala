@@ -21,6 +21,7 @@ import akka.pattern.pipe
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.slick.scaladsl.SlickSession
 import org.loopring.marketcap.DatabaseAccesser
+import org.loopring.marketcap.cache.{ CacherSettings, ProtoBufMessageCacher }
 import org.loopring.marketcap.proto.data._
 
 import scala.concurrent.Future
@@ -34,32 +35,45 @@ class TokenIcoServiceActor(
   import session.profile.api._
   import system.dispatcher
 
-  override def receive: Receive = {
-    case info: TokenIcoInfo ⇒
+  implicit val settings = CacherSettings(system.settings.config)
 
-      implicit val saveTokenIcoInfo = (info: TokenIcoInfo) ⇒
-        sqlu"""INSERT INTO t_token_ico_info(token_address, ico_start_date,
+  implicit val saveTokenIcoInfo = (info: TokenIcoInfo) ⇒
+    sqlu"""INSERT INTO t_token_ico_info(token_address, ico_start_date,
           ico_end_date, hard_cap, soft_cap, token_raised, ico_price, from_country) VALUES(
           ${info.tokenAddress}, ${info.icoStartDate}, ${info.icoEndDate}, ${info.hardCap},
           ${info.softCap}, ${info.tokenRaised}, ${info.icoPrice}, ${info.country}) ON DUPLICATE KEY UPDATE ico_start_date=${info.icoStartDate},
           ico_end_date=${info.icoEndDate},hard_cap=${info.hardCap},soft_cap=${info.softCap},token_raised=${info.tokenRaised},
           ico_price=${info.icoPrice},from_country=${info.country}"""
 
+  implicit val toGetTokenIcoInfo = (r: ResultRow) ⇒
+    TokenIcoInfo(tokenAddress = r <<, icoStartDate = r <<, icoEndDate = r <<,
+      hardCap = r <<, softCap = r <<, tokenRaised = r <<, icoPrice = r <<, country = r <<)
+
+  val cacherTokenIcoInfo = new ProtoBufMessageCacher[GetTokenIcoInfoRes]
+  val tokenIcoInfoKey = "TOKEN_ICO_KEY"
+
+  override def receive: Receive = {
+    case info: TokenIcoInfo ⇒
+
       saveOrUpdate(info)
 
     case req: GetTokenIcoInfoReq ⇒
+      //优先查询缓存，缓存没有再查询数据表并存入缓存
+      val res = cacherTokenIcoInfo.getOrElse(tokenIcoInfoKey, Some(600)) {
+        val resp: Future[GetTokenIcoInfoRes] =
+          sql"""SELECT token_address, ico_start_date, ico_end_date, hard_cap, soft_cap, token_raised,ico_price, from_country
+             from t_token_ico_info
+             where token_address like concat('%', ${req.tokenAddress.getOrElse("")}, '%')
+          """.list[TokenIcoInfo].map(GetTokenIcoInfoRes(_))
 
-      implicit val toGetTokenIcoInfo = (r: ResultRow) ⇒
-        TokenIcoInfo(tokenAddress = r <<, icoStartDate = r <<, icoEndDate = r <<,
-          hardCap = r <<, softCap = r <<, tokenRaised = r <<, icoPrice = r <<, country = r <<)
+        resp.map(Some(_))
+      }
 
-      // TODO(Toan) 这里缺少where条件
-      val res: Future[GetTokenIcoInfoRes] =
-        sql"""SELECT token_address, ico_start_date, ico_end_date, hard_cap, soft_cap, token_raised,
-             ico_price, from_country from t_token_ico_info"""
-          .list[TokenIcoInfo].map(GetTokenIcoInfoRes(_))
-
-      res pipeTo sender
+      res.map {
+        case Some(r) => r
+        case _ => throw new Exception("data in table is null. Please find the reason!")
+      } pipeTo sender
 
   }
+
 }

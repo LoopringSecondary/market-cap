@@ -39,7 +39,6 @@ class ProtoBufMessageCacher[T <: ProtoBuf[T]](
 
   private[cache] implicit val serializer = new ProtoBufByteStringSerializer[T]
 
-
   private[cache] val seqAnyByteStringDeserializer = new SeqAnyByteStringDeserializer[T]
 
   def get(k: String): Future[Option[T]] = redis.get(k)
@@ -104,7 +103,6 @@ final class SeqAnyByteStringDeserializer[T] extends ByteStringDeserializer[Seq[T
     }
   }
 }
-
 
 final class ProtoBufByteStringDeserializer[T <: ProtoBuf[T]](
   implicit

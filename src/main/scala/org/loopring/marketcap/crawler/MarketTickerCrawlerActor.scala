@@ -16,26 +16,34 @@
 
 package org.loopring.marketcap.crawler
 
-import scalapb.json4s.{ Parser, Printer }
 import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Timers }
-import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
+import akka.http.scaladsl.model.{ HttpMethods, HttpRequest, HttpResponse, StatusCodes }
 import akka.util.Timeout
 import akka.stream.ActorMaterializer
 import org.loopring.marketcap.broker.HttpConnector
-import org.loopring.marketcap.proto.data.{ MarketTickData, _ }
+import org.loopring.marketcap.proto.data._
 import org.loopring.marketcap.SignatureUtil
+
 import scala.concurrent.Future
-import akka.pattern.{ ask }
+import akka.pattern.ask
+import scalapb.json4s.Parser
+
 import scala.concurrent.duration._
 
-class MarketTickerCrawlerActor(marketTickerServiceActor: ActorRef, tokenInfoServiceActor: ActorRef, implicit val system: ActorSystem, val mat: ActorMaterializer) extends Actor with HttpConnector with Timers with ActorLogging with SignatureUtil {
+class MarketTickerCrawlerActor(
+  marketTickerServiceActor: ActorRef,
+  tokenInfoServiceActor: ActorRef)(
+  implicit
+  val system: ActorSystem,
+  val mat: ActorMaterializer) extends Actor with HttpConnector with Timers with ActorLogging with SignatureUtil {
 
   implicit val timeout = Timeout(5 seconds)
-  implicit val _mat = mat
 
   val appId = system.settings.config.getString("my_token.app_id")
   val connection = http(system.settings.config.getString("my_token.host_url"))
   val appSecret = system.settings.config.getString("my_token.app_secret")
+
+  val parser = new Parser(preservingProtoFieldNames = true) //protobuf 序列化为json不使用驼峰命名
 
   override def preStart(): Unit = {
     //daliy schedule market's ticker info
@@ -43,7 +51,7 @@ class MarketTickerCrawlerActor(marketTickerServiceActor: ActorRef, tokenInfoServ
   }
 
   override def receive: Receive = {
-    case s: String ⇒
+    case _: String ⇒
       //load AllTokens
       val f = (tokenInfoServiceActor ? GetTokenListReq()).mapTo[GetTokenListRes]
       f.foreach {
@@ -55,53 +63,50 @@ class MarketTickerCrawlerActor(marketTickerServiceActor: ActorRef, tokenInfoServ
   }
 
   private def crawlMarketPairTicker(tokenInfo: TokenInfo): Unit = {
-    var name_id = tokenInfo.source
-    var symbol = tokenInfo.symbol
-    var anchor = "eth"
-    if (symbol == "ETH" || symbol == "WETH") {
-      name_id = "ethereum"
-      symbol = "eth"
-      anchor = "usd"
-    }
+
+    val (name_id, symbol, anchor) = if (tokenInfo.symbol == "ETH" || tokenInfo.symbol == "WETH") {
+      ("ethereum", "eth", "usd")
+    } else (tokenInfo.source, tokenInfo.symbol, "eth")
+
     val timestamp = System.currentTimeMillis() / 1000
-    val sighTemp = "anchor=" + anchor + "&app_id=" + appId + "&name_id=" + name_id + "&symbol=" + symbol.toLowerCase() + "&timestamp=" + timestamp
-    val signValue = bytesToHex(getHmacSHA256(appSecret, sighTemp + "&app_secret=" + appSecret)).toUpperCase()
-    val uri = "/ticker/paironmarket?" + sighTemp + "&sign=" + signValue
+    val sighTemp = s"anchor=$anchor&app_id=$appId&name_id=$name_id&symbol=${symbol.toLowerCase()}&timestamp=${timestamp}"
+    val signValue = bytesToHex(getHmacSHA256(appSecret, s"$sighTemp&app_secret=$appSecret")).toUpperCase()
+    val uri = s"/ticker/paironmarket?$sighTemp&sign=$signValue"
 
     get(HttpRequest(uri = uri, method = HttpMethods.GET)) {
-      case r if r.status.isSuccess() =>
-        r.to[String].map {
-          dataInfoStr =>
-            val p = new Parser(preservingProtoFieldNames = true) //protobuf 序列化为json不使用驼峰命名
-            val marketTickData = p.fromJsonString[MarketTickData](dataInfoStr)
-            val lastUpdated = marketTickData.timestamp
-            marketTickData.data.foreach {
-              pairdata =>
-                pairdata.marketList.foreach {
-                  ticker =>
-                    val symbol = ticker.symbol
-                    val market = ticker.anchor
-                    val exchange = ticker.marketName
-                    val price = ticker.price.toDouble
-                    val priceUsd = ticker.priceUsd.toDouble
-                    val priceCny = ticker.priceCny.toDouble
-                    val volume24hUsd = ticker.volume24HUsd.toDouble
-                    val volume24hFrom = ticker.volume24HFrom.toDouble
-                    val volume24h = ticker.volume24H.toDouble
-                    val percentChangeUtc0 = ticker.percentChangeUtc0.toDouble
-                    val alias = ticker.alias
-                    val exchangeTickerInfo = ExchangeTickerInfo(symbol, market, exchange, price, priceUsd, priceCny,
-                      volume24hUsd, volume24hFrom, volume24h, percentChangeUtc0, alias, lastUpdated)
-                    marketTickerServiceActor ! exchangeTickerInfo
-                }
+      case HttpResponse(StatusCodes.OK, _, entity, _) =>
+
+        entity.dataBytes.map(_.utf8String).runReduce(_ + _).map { dataInfoStr ⇒
+
+          val marketTickData = parser.fromJsonString[MarketTickData](dataInfoStr)
+
+          val lastUpdated = marketTickData.timestamp
+
+          marketTickData.data.foreach {
+            _.marketList.foreach {
+              case MarketPair(exchange, symbol, market,
+                price, priceCny, priceUsd,
+                volume24hUsd, volume24h, volume24hFrom,
+                percentChangeUtc0, alias) ⇒
+
+                marketTickerServiceActor ! ExchangeTickerInfo(symbol, market, exchange,
+                  price.toDouble, priceUsd.toDouble, priceCny.toDouble,
+                  volume24hUsd.toDouble, volume24hFrom.toDouble, volume24h.toDouble,
+                  percentChangeUtc0.toDouble, alias, lastUpdated)
             }
+          }
         }
 
       case _ =>
         log.error("get ticker data from my-token failed")
-        Future.successful(ExchangeTickerInfo())
+        Future.successful(Unit)
     }
 
+  }
+
+  //todo 后续看是否需要特殊处理double类型的字段
+  def toDouble: PartialFunction[String, Double] = {
+    case s: String ⇒ scala.util.Try(s.toDouble).toOption.getOrElse(0)
   }
 
 }

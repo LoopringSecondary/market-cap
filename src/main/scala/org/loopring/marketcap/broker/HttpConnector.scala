@@ -28,7 +28,6 @@ import akka.stream.scaladsl.{ Flow, Sink, Source }
 import org.loopring.marketcap._
 
 import scala.concurrent.Future
-import scala.reflect.ClassTag
 
 trait HttpConnector extends Json4sSupport {
 
@@ -70,14 +69,21 @@ trait HttpConnector extends Json4sSupport {
     }
   }
 
-  //  implicit def mapToString(response: HttpResponse): Future[String] = {
-  //
-  //  }
-
   def get[T](uri: String)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
     val fallbackFuture = (r: Future[HttpResponse]) ⇒ r.flatMap(fallback)
-    (dispatcher andThen fallbackFuture) (Get(uri))
+    (dispatcher andThen fallbackFuture)(Get(uri))
   }
+
+  //  def getWithEntity[T](uri: String)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
+  //    // val fallbackFuture = (r: Future[HttpResponse]) ⇒ r.flatMap(fallback)
+  //
+  //    val f = (r: Future[HttpResponse]) ⇒ {
+  //      case HttpResponse(StatusCodes.OK, _, entity) ⇒ Unmarshal(entity).to[T]
+  //      case _ ⇒ throw new Exception("")
+  //    }
+  //
+  //    (dispatcher andThen fallbackFuture)(Get(uri))
+  //  }
 
   def get[T](httpRequest: HttpRequest)(implicit fallback: HttpResponse ⇒ Future[T]): Future[T] = {
     val fallbackFuture = (r: Future[HttpResponse]) ⇒ r.flatMap(fallback)
