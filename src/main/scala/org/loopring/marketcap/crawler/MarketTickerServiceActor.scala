@@ -75,7 +75,7 @@ class MarketTickerServiceActor(
               percent_change_utc0,
               alias,
               last_updated
-              from ExchangeTickerInfo
+              from t_exchange_ticker_info
              where symbol = ${req.symbol}
              and market = ${req.market}
           """
