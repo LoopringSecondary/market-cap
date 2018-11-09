@@ -70,7 +70,7 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
   }
 
   private def crawlTokenTrendData(tokenInfo: TokenInfo): Unit = {
-    // var name_id = tokenInfo.source
+
     val symbol = tokenInfo.symbol
 
     val name_id = if (symbol == "ETH" || symbol == "WETH") "ethereum" else tokenInfo.source
@@ -92,7 +92,7 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
           dataInfo.data.foreach {
             trendData =>
               //set in redis cache
-              cacherTokenTrend.push(buildCacheKey(symbol, period), trendData.trend)
+              cacherTokenTrend.putSeq(buildCacheKey(symbol, period), trendData.trend)
             //println(Json(DefaultFormats).write(trendData.trend))
 
           }

@@ -22,12 +22,11 @@ import akka.pattern.pipe
 import com.typesafe.scalalogging.LazyLogging
 import org.loopring.marketcap.proto.data._
 import org.loopring.marketcap.cache._
-
 import scala.concurrent.Future
 
 class TokenTrendServiceActor(implicit
   system: ActorSystem,
-  mat: ActorMaterializer) extends Actor with LazyLogging {
+  mat: ActorMaterializer) extends Actor {
 
   import system.dispatcher
 
@@ -40,9 +39,12 @@ class TokenTrendServiceActor(implicit
 
     case req: GetTokenTrendDataReq ⇒
       //这里只需查询缓存
-      cacherTokenTrendData.pull(buildCacheKey(req.symbol.getOrElse(""), req.period.getOrElse(""))).foreach {
-        trendData => Future(trendData) pipeTo sender
-      }
+      val res = cacherTokenTrendData.getSeq(buildCacheKey(req.symbol.getOrElse(""), req.period.getOrElse("")))
+
+      res.map {
+        case Some(r) => r
+        case _ => throw new Exception("trend data in redis is null.")
+      } pipeTo sender
 
   }
 
