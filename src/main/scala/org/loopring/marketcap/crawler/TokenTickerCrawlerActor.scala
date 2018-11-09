@@ -63,7 +63,6 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
           getReq(currency)
           Thread.sleep(50)
       }
-
   }
 
   def getReq(currency: String): Unit = {
@@ -74,7 +73,6 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
 
       get(HttpRequest(uri = uri, method = HttpMethods.GET).withHeaders(rawHeader)) {
         case HttpResponse(StatusCodes.OK, _, entity, _) =>
-
           entity.dataBytes.map(_.utf8String).runReduce(_ + _).map { dataInfoStr ⇒
             val dataInfo = parser.fromJsonString[TickerDataInfo](dataInfoStr)
             val fixGroup = dataInfo.data.grouped(100)

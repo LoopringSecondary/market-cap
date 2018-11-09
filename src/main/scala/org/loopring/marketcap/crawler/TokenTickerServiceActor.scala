@@ -71,7 +71,6 @@ class TokenTickerServiceActor(implicit
       val res = cacherTokenTickerInfo.getOrElse(tokenTickerInfoKey, Some(600)) {
         val resp: Future[GetTokenTickerInfoRes] =
           sql"""select
-             id,
              token_id,
              token_name,
              symbol,
@@ -89,8 +88,7 @@ class TokenTickerServiceActor(implicit
              percent_change_7d,
              last_updated
              from t_token_ticker_info
-             where symbol = ${req.symbol}
-             and market = ${req.market}
+             where market = ${req.market}
           """.list[TokenTickerInfo].map(GetTokenTickerInfoRes(_))
 
         resp.map(Some(_))

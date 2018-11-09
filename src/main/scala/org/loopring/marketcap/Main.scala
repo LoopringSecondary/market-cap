@@ -23,11 +23,15 @@ import akka.stream.alpakka.slick.scaladsl.SlickSession
 import com.typesafe.config.ConfigFactory
 import org.loopring.marketcap.crawler._
 import org.loopring.marketcap.endpoints.RootEndpoints
+import org.loopring.marketcap.proto.data._
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
 import slick.basic.DatabaseConfig
+import akka.pattern.{ AskTimeoutException, ask }
 import slick.jdbc.JdbcProfile
+import akka.util.Timeout
 
 import scala.util.{ Failure, Success }
+import scala.concurrent.duration._
 
 object Main extends App {
 
@@ -35,27 +39,55 @@ object Main extends App {
   implicit val system = ActorSystem("Test", ConfigFactory.load())
   implicit val mat = ActorMaterializer()
   implicit val ec = system.dispatcher
+  implicit val timeout = Timeout(5 seconds)
 
   //for db
   val databaseConfig = DatabaseConfig.forConfig[JdbcProfile]("slick-mysql", system.settings.config)
   implicit val session = SlickSession.forConfig(databaseConfig)
   system.registerOnTermination(() => session.close())
 
-  //crawler token's icoInfo
-  //val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
-  //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
-
   //query tokenlist
   val tokenInfoDatabaseActor = system.actorOf(Props(new TokenInfoServiceActor()), "token_info")
-  //query tokenIcolist
+
+  //crawl token's icoInfo
   //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
+  /*val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
+  val f = (tokenIcoServiceActor ? GetTokenIcoInfoReq()).mapTo[GetTokenIcoInfoRes]
+  f.foreach {
+    _.list.foreach {
+      ico =>
+        println("test ico start")
+        println(ico.tokenAddress)
+        println(ico.icoStartDate)
+        println("test ico end")
+    }
+  }*/
 
-  //val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
-  //val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor, system, mat)), "token_ticker_crawler")
+  //crawl market Ticker
+  //val marketTickerCrawlerActor = system.actorOf(Props(new MarketTickerCrawlerActor(marketTickerServiceActor, tokenInfoDatabaseActor)), "market-ticker")
   //val marketTickerServiceActor = system.actorOf(Props(new MarketTickerServiceActor()), "market-ticker-service")
-  //val marketTickerActor = system.actorOf(Props(new MarketTickerCrawlerActor(marketTickerServiceActor, tokenInfoDatabaseActor, system, mat)), "market-ticker")
+  /*val f = (marketTickerServiceActor ? GetExchangeTickerInfoReq(Some("lrc"), Some("eth"))).mapTo[GetExchangeTickerInfoRes]
+  f.foreach {
+    _.list.foreach {
+      market =>
+        println(market.exchange)
+    }
+  }*/
 
-  //val tokenTrendCrawlerActor = system.actorOf(Props(new TokenTrendCrawlerActor(tokenInfoDatabaseActor)), "token_trend")
+  //val tokenTrendCrawlerActor = system.actorOf(Props(new TokenTrendCrawlerActor(tokenInfoDatabaseActor)), "token_trend_crawler")
+  /*val tokenTrendServiceActor = system.actorOf(Props(new TokenTrendServiceActor()), "token_trend_service")
+  val f = (tokenTrendServiceActor ? GetTokenTrendDataReq(Some("LRC"), Some("1d"))).mapTo[Seq[Trend]]
+  f.foreach {
+    _.foreach(trend => println(trend.time + "," + trend.price + "," + trend.volumeTo))
+  }*/
+
+  val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor)), "token_ticker_crawler")
+  val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
+  /*val f = (tokenTickerServiceActor ? GetTokenTickerInfoReq(Some("ETH"))).mapTo[GetTokenTickerInfoRes]
+    f.foreach {
+    ticker => println(ticker.list.size)
+  }*/
+
   // for endpoints
   val root: RootEndpoints = new RootEndpoints(tokenInfoDatabaseActor)
   val bind = Http().bindAndHandle(root(), interface = "0.0.0.0", port = 9000)

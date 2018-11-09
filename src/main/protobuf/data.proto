@@ -57,8 +57,7 @@ message GetTokenIcoInfoRes {
 }
 
 message GetTokenTickerInfoReq{
-   google.protobuf.StringValue symbol = 1;
-   google.protobuf.StringValue market = 2;
+   google.protobuf.StringValue market = 1;
 }
 
 message GetTokenTickerInfoRes {
