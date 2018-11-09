@@ -19,10 +19,8 @@ package org.loopring.marketcap.crawler
 import akka.actor._
 import akka.stream.ActorMaterializer
 import akka.pattern.pipe
-import com.typesafe.scalalogging.LazyLogging
 import org.loopring.marketcap.proto.data._
 import org.loopring.marketcap.cache._
-import scala.concurrent.Future
 
 class TokenTrendServiceActor(implicit
   system: ActorSystem,
