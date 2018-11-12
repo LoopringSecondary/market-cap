@@ -106,7 +106,7 @@ class TokenTrendCrawlerActor(tokenInfoServiceActor: ActorRef)(
   }
 
   def buildCacheKey(symbol: String, period: String) = {
-    s"$trendKey${symbol}_${period.toUpperCase()}"
+    s"$trendKey${symbol.toUpperCase()}_${period.toUpperCase()}"
   }
 
 }

@@ -55,7 +55,7 @@ class TokenTickerServiceActor(implicit
       percentChange1H = r <<, percentChange24H = r <<, percentChange7D = r <<, lastUpdated = r <<)
 
   val cacherTokenTickerInfo = new ProtoBufMessageCacher[GetTokenTickerInfoRes]
-  val tokenTickerInfoKey = "TOKEN_TICKER_INFO_KEY"
+  val tokenTickerInfoKey = "TOKEN_TICKER_INFO_"
 
   override def receive: Receive = {
     case info: TokenTickerInfo ⇒
@@ -68,7 +68,7 @@ class TokenTickerServiceActor(implicit
 
     case req: GetTokenTickerInfoReq ⇒
       //优先查询缓存，缓存没有再查询数据表并存入缓存
-      val res = cacherTokenTickerInfo.getOrElse(tokenTickerInfoKey, Some(600)) {
+      val res = cacherTokenTickerInfo.getOrElse(buildCacheKey(req.market.getOrElse("")), Some(600)) {
         val resp: Future[GetTokenTickerInfoRes] =
           sql"""select
              token_id,
@@ -99,6 +99,10 @@ class TokenTickerServiceActor(implicit
         case _ => throw new Exception("data in table is null. Please find the reason!")
       } pipeTo sender
 
+  }
+
+  def buildCacheKey(market: String) = {
+    s"$tokenTickerInfoKey${market.toUpperCase()}"
   }
 
 }

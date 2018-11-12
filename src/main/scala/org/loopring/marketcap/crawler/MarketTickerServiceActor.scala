@@ -51,7 +51,7 @@ class MarketTickerServiceActor(
       volume24HFrom = r <<, volume24H = r <<, percentChangeUtc0 = r <<, alias = r <<, lastUpdated = r <<)
 
   val cacherExchangeTickerInfo = new ProtoBufMessageCacher[GetExchangeTickerInfoRes]
-  val exchangeTickerInfoKey = "EXCHANGE_TICKER_INFO_KEY"
+  val exchangeTickerInfoKey = "EXCHANGE_TICKER_INFO_"
 
   override def receive: Receive = {
     case info: ExchangeTickerInfo ⇒
@@ -60,7 +60,7 @@ class MarketTickerServiceActor(
 
     case req: GetExchangeTickerInfoReq ⇒
       //优先查询缓存，缓存没有再查询数据表并存入缓存
-      val res = cacherExchangeTickerInfo.getOrElse(exchangeTickerInfoKey, Some(600)) {
+      val res = cacherExchangeTickerInfo.getOrElse(buildCacheKey(req.symbol.getOrElse(""),req.market.getOrElse("")), Some(600)) {
         val resp: Future[GetExchangeTickerInfoRes] =
           sql"""select
               symbol,
@@ -88,6 +88,10 @@ class MarketTickerServiceActor(
         case _ => throw new Exception("data in table is null. Please find the reason!")
       } pipeTo sender
 
+  }
+
+  def buildCacheKey(symbol: String, market: String) = {
+    s"$exchangeTickerInfoKey${symbol.toUpperCase()}_${market.toUpperCase()}"
   }
 
 }
