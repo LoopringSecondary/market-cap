@@ -60,7 +60,7 @@ class MarketTickerServiceActor(
 
     case req: GetExchangeTickerInfoReq ⇒
       //优先查询缓存，缓存没有再查询数据表并存入缓存
-      val res = cacherExchangeTickerInfo.getOrElse(buildCacheKey(req.symbol.getOrElse(""),req.market.getOrElse("")), Some(600)) {
+      val res = cacherExchangeTickerInfo.getOrElse(buildCacheKey(req.symbol.getOrElse(""), req.market.getOrElse("")), Some(600)) {
         val resp: Future[GetExchangeTickerInfoRes] =
           sql"""select
               symbol,

@@ -23,15 +23,13 @@ import akka.stream.alpakka.slick.scaladsl.SlickSession
 import com.typesafe.config.ConfigFactory
 import org.loopring.marketcap.crawler._
 import org.loopring.marketcap.endpoints.RootEndpoints
-import org.loopring.marketcap.proto.data._
+import akka.util.Timeout
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
 import slick.basic.DatabaseConfig
-import akka.pattern.{ AskTimeoutException, ask }
 import slick.jdbc.JdbcProfile
-import akka.util.Timeout
 
-import scala.util.{ Failure, Success }
 import scala.concurrent.duration._
+import scala.util.{ Failure, Success }
 
 object Main extends App {
 
@@ -45,6 +43,10 @@ object Main extends App {
   val databaseConfig = DatabaseConfig.forConfig[JdbcProfile]("slick-mysql", system.settings.config)
   implicit val session = SlickSession.forConfig(databaseConfig)
   system.registerOnTermination(() => session.close())
+
+  //crawler token's icoInfo
+  val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
+  //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
 
   //query tokenlist
   val tokenInfoDatabaseActor = system.actorOf(Props(new TokenInfoServiceActor()), "token_info")
@@ -89,7 +91,7 @@ object Main extends App {
   }*/
 
   // for endpoints
-  val root: RootEndpoints = new RootEndpoints(tokenInfoDatabaseActor)
+  val root: RootEndpoints = new RootEndpoints(tokenIcoServiceActor)
   val bind = Http().bindAndHandle(root(), interface = "0.0.0.0", port = 9000)
 
   bind.onComplete {

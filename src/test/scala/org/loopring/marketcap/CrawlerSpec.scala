@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 Loopring Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.loopring.marketcap
 
 import java.text.SimpleDateFormat
@@ -18,9 +34,7 @@ class CrawlerSpec extends FlatSpec {
 
     val dd = toICO _ compose get
 
-
     val ss = dd("https://etherscan.io/token/0xef68e7c694f40c8202821edf525de3782458639f#tokenInfo")
-
 
     println("ss ==>>" + JsonFormat.toJsonString(ss))
 
@@ -29,7 +43,6 @@ class CrawlerSpec extends FlatSpec {
     //    val s = "Aug 01, 2017"
     //
     //    println(f.parse(s))
-
 
     //    val doc = get("https://etherscan.io/token/0xef68e7c694f40c8202821edf525de3782458639f#tokenInfo")
     //
@@ -40,7 +53,6 @@ class CrawlerSpec extends FlatSpec {
     //    }
 
   }
-
 
   def toICO(doc: JDoc): TokenIcoInfo = {
 
@@ -55,14 +67,14 @@ class CrawlerSpec extends FlatSpec {
     val ee = dd.get("ICO Start Date").map(toXX).getOrElse("")
     val ff = dd.get("ICO End Date").map(toXX).getOrElse("")
 
-
     val hardCap = dd.get("Hard Cap").getOrElse("").replaceAll("ETH", "").trim
     val softCap = dd.get("Soft Cap").getOrElse("").replaceAll("ETH", "").trim
     val raised = dd.get("Raised").getOrElse("").replaceAll("ETH", "").trim
     val icoPricie = dd.get("ICO Price").getOrElse("").replaceAll("ETH", "").trim
     val country = dd.get("Country").getOrElse("")
 
-    TokenIcoInfo(tokenAddress = "0xef68e7c694f40c8202821edf525de3782458639f",
+    TokenIcoInfo(
+      tokenAddress = "0xef68e7c694f40c8202821edf525de3782458639f",
       icoStartDate = ee,
       icoEndDate = ff,
       hardCap = hardCap,
