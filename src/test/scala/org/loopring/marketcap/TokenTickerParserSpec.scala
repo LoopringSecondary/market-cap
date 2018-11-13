@@ -33,7 +33,7 @@ class TokenTickerParserSpec extends WordSpec {
 
   // 这里是模拟 http request 请求, 把response 中的 data 转换成 CMCTickerData
   // 这里是 USD 数据
-  def getTokenUSD: Future[Seq[CMCTickerData]] =
+  def getTokenUSD: Future[Seq[CMCTickerData]] =TokenTickerCrawlerActor.scala
     Future {
       (parse(new File("tokens_usd.json")) \\ "data")
         .children
