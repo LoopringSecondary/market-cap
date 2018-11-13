@@ -83,8 +83,8 @@ object Main extends App {
     _.foreach(trend => println(trend.time + "," + trend.price + "," + trend.volumeTo))
   }*/
 
-  val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor)), "token_ticker_crawler")
-  val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
+  //val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor)), "token_ticker_crawler")
+  //val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
   /*val f = (tokenTickerServiceActor ? GetTokenTickerInfoReq(Some("ETH"))).mapTo[GetTokenTickerInfoRes]
     f.foreach {
     ticker => println(ticker.list.size)

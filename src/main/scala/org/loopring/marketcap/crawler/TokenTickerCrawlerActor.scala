@@ -83,6 +83,14 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
           tokenTickerServiceActor ! convertTO(group)
       }
 
+      //todo 待cmc会员充值开通后，单独获取cny的ticker可以去掉
+      Thread.sleep(50)
+      getTokenTickers("CNY").foreach {
+        _.grouped(100).foreach {
+          batch => tokenTickerServiceActor ! convertTO(batch)
+        }
+      }
+
   }
 
   //获取cmc's token对锚定币convertCurrency的价格
@@ -123,65 +131,33 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
   }
 
   def convertTO(tickers: Seq[CMCTickerData]): SeqTpro[TokenTickerInfo] = {
+    val f = tickers.flatMap {
+      ticker ⇒
+        val id = ticker.id
+        val name = ticker.name
+        val symbol = ticker.symbol
+        val websiteSlug = ticker.slug
+        val rank = ticker.cmcRank
+        val circulatingSupply = ticker.circulatingSupply
+        val totalSupply = ticker.totalSupply
+        val maxSupply = ticker.maxSupply
 
-    val f = tickers.flatMap { ticker ⇒
-
-      val id = ticker.id
-      val name = ticker.name
-      val symbol = ticker.symbol
-      val websiteSlug = ticker.slug
-      val rank = ticker.cmcRank
-      val circulatingSupply = ticker.circulatingSupply
-      val totalSupply = ticker.totalSupply
-      val maxSupply = ticker.maxSupply
-
-      ticker.quote.map {
-        quoteTicker =>
-          val market = quoteTicker._1
-          val quote = quoteTicker._2
-          val price = quote.price
-          val volume24h = quote.volume24H
-          val marketCap = quote.marketCap
-          val percentChange1h = quote.percentChange1H
-          val percentChange24h = quote.percentChange24H
-          val percentChange7d = quote.percentChange7D
-          val utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z")
-          val lastUpdated = utcFormat.parse(quote.lastUpdated.replace("Z", " UTC")).getTime / 1000
-          TokenTickerInfo(id, name, symbol, websiteSlug, market, rank, circulatingSupply, totalSupply, maxSupply,
-            price, volume24h, marketCap, percentChange1h, percentChange24h, percentChange7d, lastUpdated)
-      }
-
+        ticker.quote.map {
+          priceQuote =>
+            val market = priceQuote._1
+            val quote = priceQuote._2
+            val price = quote.price
+            val volume24h = quote.volume24H
+            val marketCap = quote.marketCap
+            val percentChange1h = quote.percentChange1H
+            val percentChange24h = quote.percentChange24H
+            val percentChange7d = quote.percentChange7D
+            val utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z")
+            val lastUpdated = utcFormat.parse(quote.lastUpdated.replace("Z", " UTC")).getTime / 1000
+            TokenTickerInfo(id, name, symbol, websiteSlug, market, rank, circulatingSupply, totalSupply, maxSupply,
+              price, volume24h, marketCap, percentChange1h, percentChange24h, percentChange7d, lastUpdated)
+        }
     }
-
-    //    val f = tickers.foldLeft(Seq.empty[TokenTickerInfo]) { (tickerinfos, ticker) ⇒
-    //      val id = ticker.id
-    //      val name = ticker.name
-    //      val symbol = ticker.symbol
-    //      val websiteSlug = ticker.slug
-    //      val rank = ticker.cmcRank
-    //      val circulatingSupply = ticker.circulatingSupply
-    //      val totalSupply = ticker.totalSupply
-    //      val maxSupply = ticker.maxSupply
-    //
-    //      val tickerInfos = ticker.quote.map {
-    //        quoteTicker =>
-    //          val market = quoteTicker._1
-    //          val quote = quoteTicker._2
-    //          val price = quote.price
-    //          val volume24h = quote.volume24H
-    //          val marketCap = quote.marketCap
-    //          val percentChange1h = quote.percentChange1H
-    //          val percentChange24h = quote.percentChange24H
-    //          val percentChange7d = quote.percentChange7D
-    //          val utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z")
-    //          val lastUpdated = utcFormat.parse(quote.lastUpdated.replace("Z", " UTC")).getTime / 1000
-    //          TokenTickerInfo(id, name, symbol, websiteSlug, market, rank, circulatingSupply, totalSupply, maxSupply,
-    //            price, volume24h, marketCap, percentChange1h, percentChange24h, percentChange7d, lastUpdated)
-    //           // tickerinfos :+ tickerInfo
-    //      }
-    //
-    //      tickerinfos ++ tickerInfos
-    //    }
     SeqTpro(f)
   }
 
