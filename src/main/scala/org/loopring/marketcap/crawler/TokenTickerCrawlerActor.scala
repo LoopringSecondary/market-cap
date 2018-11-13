@@ -26,9 +26,7 @@ import akka.util.Timeout
 import org.loopring.marketcap.SeqTpro
 import org.loopring.marketcap.broker.HttpConnector
 import org.loopring.marketcap.proto.data._
-import scalapb.json4s.{ JsonFormat, Parser }
-
-import scala.collection.immutable
+import scalapb.json4s.{ Parser }
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
@@ -52,7 +50,7 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
 
   override def preStart(): Unit = {
     //daliy schedule token's ticker info
-    timers.startSingleTimer("cronSyncTokenTicker", "syncTokenTicker", 30 seconds)
+    timers.startPeriodicTimer("cronSyncTokenTicker", "syncTokenTicker", 600 seconds)
   }
 
   override def receive: Receive = {
