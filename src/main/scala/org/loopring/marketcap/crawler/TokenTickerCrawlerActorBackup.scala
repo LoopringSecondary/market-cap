@@ -89,7 +89,7 @@ class TokenTickerCrawlerActorBackup(tokenTickerServiceActor: ActorRef)(
     }
   }
 
-  def convertTO(tickers: Seq[CMCTickerData], currency: String): SeqTpro[TokenTickerInfo] = {
+  def convertTO(tickers: Seq[CMCTickerData], currency: String): SeqTpro = {
 
     val f = tickers.foldLeft(Seq.empty[TokenTickerInfo]) { (tickerinfos, ticker) ⇒
 

@@ -62,9 +62,9 @@ class TokenTickerServiceActor(implicit
 
       saveOrUpdate(info)
 
-    case info: SeqTpro[_] ⇒
+    case info: SeqTpro ⇒
 
-      saveOrUpdate(info.t.map(_.asInstanceOf[TokenTickerInfo]): _*)
+      saveOrUpdate(info.t: _*)
 
     case req: GetTokenTickerInfoReq ⇒
       //优先查询缓存，缓存没有再查询数据表并存入缓存
