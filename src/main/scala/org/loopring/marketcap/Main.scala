@@ -24,10 +24,11 @@ import com.typesafe.config.ConfigFactory
 import org.loopring.marketcap.crawler._
 import org.loopring.marketcap.endpoints.RootEndpoints
 import akka.util.Timeout
+import org.loopring.marketcap.proto.data._
 import org.loopring.marketcap.tokens.TokenInfoServiceActor
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-
+import akka.pattern.ask
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
@@ -67,14 +68,14 @@ object Main extends App {
 
   //crawl market Ticker
   //val marketTickerCrawlerActor = system.actorOf(Props(new MarketTickerCrawlerActor(marketTickerServiceActor, tokenInfoDatabaseActor)), "market-ticker")
-  //val marketTickerServiceActor = system.actorOf(Props(new MarketTickerServiceActor()), "market-ticker-service")
-  /*val f = (marketTickerServiceActor ? GetExchangeTickerInfoReq(Some("lrc"), Some("eth"))).mapTo[GetExchangeTickerInfoRes]
+  val marketTickerServiceActor = system.actorOf(Props(new MarketTickerServiceActor()), "market-ticker-service")
+  val f = (marketTickerServiceActor ? GetExchangeTickerInfoReq(Some("lrc"), Some("eth"))).mapTo[GetExchangeTickerInfoRes]
   f.foreach {
     _.list.foreach {
       market =>
         println(market.exchange)
     }
-  }*/
+  }
 
   //val tokenTrendCrawlerActor = system.actorOf(Props(new TokenTrendCrawlerActor(tokenInfoDatabaseActor)), "token_trend_crawler")
   /*val tokenTrendServiceActor = system.actorOf(Props(new TokenTrendServiceActor()), "token_trend_service")
@@ -86,8 +87,9 @@ object Main extends App {
   //val tokenTickerCrawlerActor = system.actorOf(Props(new TokenTickerCrawlerActor(tokenTickerServiceActor)), "token_ticker_crawler")
   //val tokenTickerServiceActor = system.actorOf(Props(new TokenTickerServiceActor()), "token_ticker_service")
   /*val f = (tokenTickerServiceActor ? GetTokenTickerInfoReq(Some("ETH"))).mapTo[GetTokenTickerInfoRes]
-    f.foreach {
-    ticker => println(ticker.list.size)
+  f.foreach {
+    ticker =>
+      println(ticker.list.size)
   }*/
 
   // for endpoints

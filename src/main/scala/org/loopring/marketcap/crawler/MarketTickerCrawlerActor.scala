@@ -88,11 +88,11 @@ class MarketTickerCrawlerActor(
                 price, priceCny, priceUsd,
                 volume24hUsd, volume24h, volume24hFrom,
                 percentChangeUtc0, alias) ⇒
-
+                val pair = symbol.toUpperCase() + "-" + market.toUpperCase()
                 marketTickerServiceActor ! ExchangeTickerInfo(symbol, market, exchange,
                   price.toDouble, priceUsd.toDouble, priceCny.toDouble,
                   volume24hUsd.toDouble, volume24hFrom.toDouble, volume24h.toDouble,
-                  percentChangeUtc0.toDouble, alias, lastUpdated)
+                  percentChangeUtc0.toDouble, alias, lastUpdated, pair)
             }
           }
         }

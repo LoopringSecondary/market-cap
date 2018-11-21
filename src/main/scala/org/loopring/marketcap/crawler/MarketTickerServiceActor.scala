@@ -48,7 +48,7 @@ class MarketTickerServiceActor(
   implicit val toGetExchangeTickerInfo = (r: ResultRow) ⇒
     ExchangeTickerInfo(symbol = r <<, market = r <<, exchange = r <<,
       price = r <<, priceUsd = r <<, priceCny = r <<, volume24HUsd = r <<,
-      volume24HFrom = r <<, volume24H = r <<, percentChangeUtc0 = r <<, alias = r <<, lastUpdated = r <<)
+      volume24HFrom = r <<, volume24H = r <<, percentChangeUtc0 = r <<, alias = r <<, lastUpdated = r <<, pair = r <<)
 
   val cacherExchangeTickerInfo = new ProtoBufMessageCacher[GetExchangeTickerInfoRes]
   val exchangeTickerInfoKey = "EXCHANGE_TICKER_INFO_"
@@ -74,7 +74,8 @@ class MarketTickerServiceActor(
               volume_24h_from,
               percent_change_utc0,
               alias,
-              last_updated
+              last_updated,
+              CONCAT_WS('-',upper(symbol),upper(market)) as pair
               from t_exchange_ticker_info
              where symbol = ${req.symbol}
              and market = ${req.market}

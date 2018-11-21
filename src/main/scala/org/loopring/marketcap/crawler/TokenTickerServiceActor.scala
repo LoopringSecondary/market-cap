@@ -52,7 +52,7 @@ class TokenTickerServiceActor(implicit
     TokenTickerInfo(tokenId = r <<, name = r <<, symbol = r <<,
       websiteSlug = r <<, market = r <<, rank = r <<, circulatingSupply = r <<,
       totalSupply = r <<, maxSupply = r <<, price = r <<, volume24H = r <<, marketCap = r <<,
-      percentChange1H = r <<, percentChange24H = r <<, percentChange7D = r <<, lastUpdated = r <<)
+      percentChange1H = r <<, percentChange24H = r <<, percentChange7D = r <<, lastUpdated = r <<, pair = r <<)
 
   val cacherTokenTickerInfo = new ProtoBufMessageCacher[GetTokenTickerInfoRes]
   val tokenTickerInfoKey = "TOKEN_TICKER_INFO_"
@@ -86,7 +86,8 @@ class TokenTickerServiceActor(implicit
              percent_change_1h,
              percent_change_24h,
              percent_change_7d,
-             last_updated
+             last_updated,
+             CONCAT_WS('-',symbol,market) as pair
              from t_token_ticker_info
              where market = ${req.market}
           """.list[TokenTickerInfo].map(GetTokenTickerInfoRes(_))

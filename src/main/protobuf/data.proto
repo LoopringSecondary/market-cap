@@ -95,6 +95,7 @@ message TokenTickerInfo {
     double percentChange24h = 14;
     double percentChange7d = 15;
      int64 lastUpdated = 16;
+    string pair = 17;
 }
 
 message CMCTickerData {
@@ -148,6 +149,7 @@ double volume24h = 9;
 double percentChangeUtc0 = 10;
 string alias = 11;
 int64 lastUpdated = 12;
+string pair = 13;
 }
 
 message MarketPair {
