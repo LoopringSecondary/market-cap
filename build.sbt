@@ -36,7 +36,7 @@ lazy val dependencies = {
 }
 
 lazy val market_cap = (project in file("."))
-  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(JavaServerAppPackaging)
   .enablePlugins(AutomateHeaderPlugin)
   .settings(
     name := "market-cap",
