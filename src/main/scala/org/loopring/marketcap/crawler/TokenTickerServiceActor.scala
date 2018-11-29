@@ -38,7 +38,7 @@ class TokenTickerServiceActor(implicit
   implicit val settings = CacherSettings(system.settings.config)
 
   implicit val saveTokenTickerInfo = (info: TokenTickerInfo) ⇒
-    sqlu"""INSERT INTO t_token_ticker_info(token_id, token_name,
+    sqlu"""INSERT INTO lpr_token_tickers(token_id, token_name,
           symbol, website_slug, market, cmc_rank, circulating_supply, total_supply,
               max_supply,price,volume_24h,market_cap,percent_change_1h,percent_change_24h,percent_change_7d,last_updated) VALUES(
           ${info.tokenId}, ${info.name}, ${info.symbol}, ${info.websiteSlug},
@@ -87,8 +87,8 @@ class TokenTickerServiceActor(implicit
              percent_change_24h,
              percent_change_7d,
              last_updated,
-             CONCAT_WS('-',symbol,market) as pair
-             from t_token_ticker_info
+             CONCAT_WS('-',symbol,replace(market,'ETH','WETH')) as pair
+             from lpr_token_tickers
              where market = ${req.market}
           """.list[TokenTickerInfo].map(GetTokenTickerInfoRes(_))
 

@@ -42,8 +42,7 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
   val connection = https(config.getString("cmc-config.prefix_url"))
   val limitSize = config.getString("cmc-config.limitSize").toInt
   val appKey = config.getString("cmc-config.api_key")
-
-  //val convertCurrency = config.getString("cmc-config.convertCurrency")
+  val convertCurrency = config.getString("cmc-config.convertCurrency")
 
   val rawHeader = RawHeader(config.getString("cmc-config.header"), appKey)
   val parser = new Parser(preservingProtoFieldNames = true) //protobuf 序列化为json不使用驼峰命名
@@ -56,7 +55,7 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
   override def receive: Receive = {
     case _: String ⇒
       val futureResult = for {
-        usdTickers ← getTokenTickers("USD")
+        usdTickers ← getTokenTickers(convertCurrency)
         marketTickers = getMarketUSDQuote(usdTickers)
       } yield {
         for {
@@ -81,13 +80,13 @@ class TokenTickerCrawlerActor(tokenTickerServiceActor: ActorRef)(
           tokenTickerServiceActor ! convertTO(group)
       }
 
-      //todo 待cmc会员充值开通后，单独获取cny的ticker可以去掉
-      Thread.sleep(50)
-      getTokenTickers("CNY").foreach {
-        _.grouped(100).foreach {
-          batch => tokenTickerServiceActor ! convertTO(batch)
-        }
-      }
+    //todo 待cmc会员充值开通后，单独获取cny的ticker可以去掉
+    //Thread.sleep(50)
+    //getTokenTickers("CNY").foreach {
+    //_.grouped(100).foreach {
+    // batch => tokenTickerServiceActor ! convertTO(batch)
+    //}
+    //}
 
   }
 

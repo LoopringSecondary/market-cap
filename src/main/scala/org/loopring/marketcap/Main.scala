@@ -46,7 +46,7 @@ object Main extends App {
   system.registerOnTermination(() => session.close())
 
   //crawler token's icoInfo
-  val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
+  //val tokenIcoServiceActor = system.actorOf(Props(new TokenIcoServiceActor()), "token_ico_service")
   //val tokenIcoCrawlerActor = system.actorOf(Props(new TokenIcoCrawlerActor(tokenIcoServiceActor, tokenInfoDatabaseActor)), "token_ico_crawler")
 
   //query tokenlist
@@ -93,7 +93,7 @@ object Main extends App {
   }*/
 
   // for endpoints
-  val root: RootEndpoints = new RootEndpoints(tokenIcoServiceActor)
+  val root: RootEndpoints = new RootEndpoints(tokenInfoDatabaseActor)
   val bind = Http().bindAndHandle(root(), interface = "0.0.0.0", port = 9000)
 
   bind.onComplete {

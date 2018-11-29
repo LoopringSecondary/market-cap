@@ -49,10 +49,10 @@ CREATE TABLE `t_token_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
---  Table structure for `t_token_ticker_info`
+--  Table structure for `lpr_token_tickers`
 -- ----------------------------
-DROP TABLE IF EXISTS `t_token_ticker_info`;
-CREATE TABLE `t_token_ticker_info` (
+DROP TABLE IF EXISTS `lpr_token_tickers`;
+CREATE TABLE `lpr_token_tickers` (
   `token_id` int(11) NOT NULL COMMENT 'token_id',
   `token_name` varchar(60) DEFAULT NULL COMMENT 'name',
   `symbol` varchar(40) NOT NULL COMMENT 'symbol',
